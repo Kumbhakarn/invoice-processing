@@ -15,8 +15,10 @@ The interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 The health endpoint is `GET /api/health`.
 
 `POST /api/extract` accepts a multipart form upload with a `file` field containing a
-PDF or image. It extracts vendor name, invoice number, date, line items, subtotal, tax,
-and total amount. OpenAI is tried first; Gemini is used as a fallback when configured.
+PDF or image. It returns the configured invoice fields for document type and number,
+buyer/exporter/consignee/notify-party names and addresses, shipment destinations and
+ports, shipping marks, line items, currency and payment terms, amount in words, and
+weights. OpenAI is tried first; Gemini is used as a fallback when configured.
 
 Set `OPENAI_API_KEY` and/or `GEMINI_API_KEY` in `backend/.env`. When both are set,
 OpenAI is attempted first and Gemini is used if the OpenAI request fails, including

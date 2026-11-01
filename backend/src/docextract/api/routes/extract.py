@@ -6,11 +6,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
-from docextract.api.schemas.invoice import InvoiceExtractionResponse
-from docextract.services.extraction import (
+from docextract.schemas import InvoiceExtractionData
+from docextract.services.extractor import (
     ExtractionNotConfiguredError,
     ExtractionProviderError,
-    extract_invoice_data,
+    extract_document_data,
 )
 
 router = APIRouter(tags=["invoices"])
@@ -30,10 +30,10 @@ def _is_supported_file(file: UploadFile) -> bool:
     )
 
 
-@router.post("/extract", response_model=InvoiceExtractionResponse)
+@router.post("/extract", response_model=InvoiceExtractionData)
 async def extract_invoice(
     file: Annotated[UploadFile, File(description="An invoice PDF or image file")],
-) -> InvoiceExtractionResponse:
+) -> InvoiceExtractionData:
     """Accept an invoice document and return AI-extracted structured data."""
     if not _is_supported_file(file):
         raise HTTPException(
@@ -47,7 +47,7 @@ async def extract_invoice(
         mime_type = mimetypes.guess_type(filename)[0] or mime_type
 
     try:
-        return await extract_invoice_data(await file.read(), mime_type, filename)
+        return await extract_document_data(await file.read(), mime_type, filename)
     except ExtractionNotConfiguredError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
