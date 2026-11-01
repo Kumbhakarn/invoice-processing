@@ -10,8 +10,8 @@ class Settings(BaseSettings):
 
     openai_api_key: str | None = None
     gemini_api_key: str | None = None
-    openai_model: str = "gpt-4o-mini"
-    gemini_model: str = "gemini-2.5-flash"
+    openai_model: str = "gpt-6-luna"
+    gemini_model: str = "gemini-3.8-flash"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
