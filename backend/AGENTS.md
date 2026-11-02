@@ -14,9 +14,11 @@ DocExtract backend: Python 3.12, FastAPI, Pydantic v2, `uv`, Ruff, pytest, and m
 - `GET /api/health` reports service availability.
 - `POST /api/extract` accepts PDF, JPEG, or PNG invoice/export documents and returns `InvoiceExtractionData` from `src/docextract/schemas.py`.
 - The configured upload limit is `MAX_UPLOAD_SIZE_BYTES`, defaulting to 10 MiB. The route reads no more than limit + 1 bytes, rejects empty files with 400 and oversized files with 413.
+- `MAX_PDF_PAGES` defaults to 50. `MAX_IMAGE_WIDTH` and `MAX_IMAGE_HEIGHT` default to 10,000 pixels. Exceeding these resource limits returns 413.
 - The route checks file signatures/basic structure and consistency between file contents, filename extension, and declared MIME type. Malformed supported files return 400; unsupported formats or mismatches return 415.
 - Format checks are lightweight integrity checks, not full document decoding. Upload size validation occurs after multipart parsing; application reads remain bounded.
 - Extraction tries OpenAI first and Gemini as fallback. Preserve provider timeouts and testability.
+- PDF page counting uses `pypdf` without rendering. Image dimensions are read from PNG/JPEG headers; avoid decoding images into full-resolution pixel buffers for validation.
 
 ## Change rules
 

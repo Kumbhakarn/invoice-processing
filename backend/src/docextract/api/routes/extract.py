@@ -1,12 +1,14 @@
 """Invoice extraction endpoint."""
 
 import binascii
+import io
 import struct
 import zlib
 from pathlib import PurePath
 from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from pypdf import PdfReader
 
 from docextract.core.config import get_settings
 from docextract.schemas import InvoiceExtractionData
@@ -56,10 +58,10 @@ def _detect_mime_type(file_bytes: bytes) -> str | None:
 
 
 def _is_valid_png(file_bytes: bytes) -> bool:
-    """Check PNG chunk bounds and CRCs, and verify its compressed image data."""
+    """Check PNG chunk bounds and CRCs and require image data and an end chunk."""
     offset = 8
     has_header = False
-    image_data: list[bytes] = []
+    has_image_data = False
     while offset + 12 <= len(file_bytes):
         chunk_length = struct.unpack(">I", file_bytes[offset : offset + 4])[0]
         chunk_end = offset + 12 + chunk_length
@@ -80,22 +82,124 @@ def _is_valid_png(file_bytes: bytes) -> bool:
                 return False
             has_header = True
         elif chunk_type == b"IDAT":
-            image_data.append(chunk_data)
+            has_image_data = True
         elif chunk_type == b"IEND":
             if (
                 chunk_length != 0
                 or chunk_end != len(file_bytes)
                 or not has_header
-                or not image_data
+                or not has_image_data
             ):
                 return False
-            try:
-                return bool(zlib.decompress(b"".join(image_data)))
-            except zlib.error:
-                return False
+            return True
 
         offset = chunk_end
     return False
+
+
+def _get_jpeg_dimensions(file_bytes: bytes) -> tuple[int, int] | None:
+    """Read JPEG dimensions from a start-of-frame marker without decoding pixels."""
+    offset = 2
+    while offset < len(file_bytes) - 2:
+        if file_bytes[offset] != 0xFF:
+            return None
+        while offset < len(file_bytes) and file_bytes[offset] == 0xFF:
+            offset += 1
+        if offset >= len(file_bytes):
+            return None
+        marker = file_bytes[offset]
+        offset += 1
+        if marker in {0xD8, 0xD9, 0x01, *range(0xD0, 0xD8)}:
+            continue
+        if offset + 2 > len(file_bytes):
+            return None
+        segment_length = struct.unpack(">H", file_bytes[offset : offset + 2])[0]
+        segment_end = offset + segment_length
+        if segment_length < 2 or segment_end > len(file_bytes):
+            return None
+        if marker in {
+            0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+            0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF,
+        }:
+            if segment_length < 7:
+                return None
+            height, width = struct.unpack(">HH", file_bytes[offset + 3 : offset + 7])
+            return width, height
+        offset = segment_end
+    return None
+
+
+def _get_image_dimensions(file_bytes: bytes, mime_type: str) -> tuple[int, int] | None:
+    """Read image dimensions from the encoded header without decoding image pixels."""
+    if mime_type == "image/png":
+        return struct.unpack(">II", file_bytes[16:24])
+    if mime_type == "image/jpeg":
+        return _get_jpeg_dimensions(file_bytes)
+    return None
+
+
+def _is_valid_png_image_data(file_bytes: bytes) -> bool:
+    """Stream PNG decompression while discarding bounded output chunks."""
+    decompressor = zlib.decompressobj()
+    offset = 8
+    while offset + 12 <= len(file_bytes):
+        chunk_length = struct.unpack(">I", file_bytes[offset : offset + 4])[0]
+        chunk_end = offset + 12 + chunk_length
+        chunk_type = file_bytes[offset + 4 : offset + 8]
+        if chunk_type == b"IDAT":
+            compressed = file_bytes[offset + 8 : offset + 8 + chunk_length]
+            try:
+                while compressed:
+                    decompressor.decompress(compressed, max_length=64 * 1024)
+                    compressed = decompressor.unconsumed_tail
+                    if decompressor.unused_data:
+                        return False
+            except zlib.error:
+                return False
+        elif chunk_type == b"IEND":
+            return decompressor.eof and not decompressor.unused_data
+        offset = chunk_end
+    return False
+
+
+def _check_document_resources(file_bytes: bytes, mime_type: str) -> None:
+    """Reject documents whose page count or image dimensions exceed configured limits."""
+    settings = get_settings()
+    if mime_type == "application/pdf":
+        try:
+            page_count = len(PdfReader(io.BytesIO(file_bytes), strict=True).pages)
+        except Exception as error:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The uploaded PDF is malformed or cannot be read.",
+            ) from error
+        if page_count > settings.max_pdf_pages:
+            raise HTTPException(
+                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+                detail=f"PDF exceeds the maximum of {settings.max_pdf_pages} pages.",
+            )
+        return
+
+    dimensions = _get_image_dimensions(file_bytes, mime_type)
+    if dimensions is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The uploaded image dimensions could not be read.",
+        )
+    width, height = dimensions
+    if width > settings.max_image_width or height > settings.max_image_height:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail=(
+                "Image dimensions exceed the maximum of "
+                f"{settings.max_image_width} by {settings.max_image_height} pixels."
+            ),
+        )
+    if mime_type == "image/png" and not _is_valid_png_image_data(file_bytes):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The uploaded PNG image data is invalid or incomplete.",
+        )
 
 
 @router.post("/extract", response_model=InvoiceExtractionData)
@@ -154,6 +258,8 @@ async def extract_invoice(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             detail="Unsupported file type. Upload a PDF, JPEG, or PNG file.",
         )
+
+    _check_document_resources(file_bytes, mime_type)
 
     try:
         return await extract_document_data(file_bytes, mime_type, filename)

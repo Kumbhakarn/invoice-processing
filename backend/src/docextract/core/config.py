@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-6-luna"
     gemini_model: str = "gemini-3.8-flash"
     max_upload_size_bytes: int = 10 * 1024 * 1024
+    max_pdf_pages: int = 50
+    max_image_width: int = 10_000
+    max_image_height: int = 10_000
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_ROOT / ".env",
