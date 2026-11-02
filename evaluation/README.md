@@ -15,6 +15,31 @@ Add new examples as matching `id.txt` and `id.json` files. Keep IDs unique and
 update this guide when adding formats or limitations. A pytest check ensures that
 both directories have identical ID sets and that each expected file is valid JSON.
 
+## Measuring extraction accuracy
+
+The backend evaluator compares model results saved as `actual/<id>.json` with
+the verified files in `expected/`. It never calls an AI provider. From `backend/`,
+run:
+
+```powershell
+uv run python -m docextract.evaluation --actual path/to/actual
+```
+
+This writes `evaluation-report.md` and `evaluation-report.json` in the current
+directory. Use `--markdown` and `--json` to choose output paths, and
+`--absolute-tolerance` / `--relative-tolerance` to configure numeric comparison.
+The default is 0.01 absolute and 0 relative tolerance. All expected fields count
+in accuracy, including null-valued fields. An explicitly extracted null matches
+an expected null; an omitted extracted key is missing and incorrect. Non-null
+values for expected nulls and extra non-null keys are unexpected and incorrect.
+Text comparison uses Unicode normalization, whitespace collapse, and
+case-insensitive matching. Recognized unambiguous date forms are normalized;
+ambiguous slash dates are only accepted as exact text. Numeric fields use
+`max(absolute tolerance, relative tolerance * abs(expected))`. Line items are
+paired by matching description, amount, quantity, and HSN code, not row order;
+unmatched rows and their extra non-null values are reported as errors. Original
+expected and actual values remain in the JSON report.
+
 ## Coverage
 
 The set varies vendor identity and layout, commercial and export invoices,
