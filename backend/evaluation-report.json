@@ -1,0 +1,3443 @@
+{
+  "total_documents": 10,
+  "unexpected_documents": [],
+  "total_fields": 279,
+  "correct_fields": 0,
+  "incorrect_fields": 279,
+  "missing_fields": 279,
+  "field_completeness": 0.0,
+  "unexpected_values": 0,
+  "exact_matches": 0,
+  "normalized_text_matches": 0,
+  "normalized_date_matches": 0,
+  "numeric_tolerance_matches": 0,
+  "field_accuracy": 0.0,
+  "line_item_documents": 10,
+  "line_item_count_correct": 0,
+  "line_item_field_accuracy": 0.0,
+  "tolerances": {
+    "absolute": 0.01,
+    "relative": 0.0
+  },
+  "documents": [
+    {
+      "document_id": "inv-01",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "48 Bridge Road, Bristol BS1 4QA, United Kingdom",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Greenfield Design Studio",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "12 King Street, Manchester M2 6AB, United Kingdom",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Northstar Office Supply Ltd.",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2025-01-14",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "NS-1048",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "Net 30",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "Net 30",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "A4 recycled paper",
+              "quantity": 10,
+              "hsn_code": null,
+              "unit_of_measurement": "reams",
+              "rate": 4.5,
+              "amount": 45.0
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Blue toner cartridge",
+              "quantity": 2,
+              "hsn_code": null,
+              "unit_of_measurement": "each",
+              "rate": 38.0,
+              "amount": 76.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "A4 recycled paper",
+            "quantity": 10,
+            "hsn_code": null,
+            "unit_of_measurement": "reams",
+            "rate": 4.5,
+            "amount": 45.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Blue toner cartridge",
+            "quantity": 2,
+            "hsn_code": null,
+            "unit_of_measurement": "each",
+            "rate": 38.0,
+            "amount": 76.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-02",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "220 Collins St, Melbourne VIC 3000, Australia",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Redgum Robotics",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "AUD",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "tax invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "7 Harbour Rd, Fremantle WA 6160, Australia",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Pacific Components Pty Ltd",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "03/02/2025",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "PC/25/0081",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "due 14 days",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "due 14 days",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Sensor module PX",
+              "quantity": 4,
+              "hsn_code": null,
+              "unit_of_measurement": null,
+              "rate": 125.5,
+              "amount": 502.0
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Cable harness",
+              "quantity": 8,
+              "hsn_code": null,
+              "unit_of_measurement": null,
+              "rate": 18.75,
+              "amount": 150.0
+            },
+            {
+              "sr_no": 3,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Packing",
+              "quantity": 1,
+              "hsn_code": null,
+              "unit_of_measurement": null,
+              "rate": 12.0,
+              "amount": 12.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Sensor module PX",
+            "quantity": 4,
+            "hsn_code": null,
+            "unit_of_measurement": null,
+            "rate": 125.5,
+            "amount": 502.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Cable harness",
+            "quantity": 8,
+            "hsn_code": null,
+            "unit_of_measurement": null,
+            "rate": 18.75,
+            "amount": 150.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[2]",
+          "expected": {
+            "sr_no": 3,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Packing",
+            "quantity": 1,
+            "hsn_code": null,
+            "unit_of_measurement": null,
+            "rate": 12.0,
+            "amount": 12.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 29,
+      "correct_fields": 0,
+      "incorrect_fields": 29,
+      "missing_fields": 29,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 3,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-03",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": "Two thousand one hundred sixty euros only",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "18 rue des Fleurs, 69002 Lyon, France",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Maison du Lin SARL",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": "18 rue des Fleurs, 69002 Lyon, France",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": "Maison du Lin SARL",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": "France",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": "India",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "EUR",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "commercial invoice - export",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "44 Ring Road, Surat 395002, Gujarat, India",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Saffron Looms Pvt. Ltd.",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": "France",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": 96,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": "FOB",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "14 March 2025",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "EX-7719",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": 84,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "30% advance, balance against documents",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": "Marseille, France",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": "Nhava Sheva, India",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": "MDL / LYON / 01-06",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "FOB Nhava Sheva; 30% advance, balance against documents",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": "kg",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": 6,
+              "description_of_goods": "Linen tablecloths",
+              "quantity": 120,
+              "hsn_code": null,
+              "unit_of_measurement": "pcs",
+              "rate": 18.0,
+              "amount": 2160.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": 6,
+            "description_of_goods": "Linen tablecloths",
+            "quantity": 120,
+            "hsn_code": null,
+            "unit_of_measurement": "pcs",
+            "rate": 18.0,
+            "amount": 2160.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 27,
+      "correct_fields": 0,
+      "incorrect_fields": 27,
+      "missing_fields": 27,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 1,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-04",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "Industriestrasse 9, 6020 Innsbruck, Austria",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Alpine Works GmbH",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "500 Market Street, Suite 210, San Francisco, CA 94105, USA",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Blue Peak Industrial Inc.",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2025/04/06",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "BPI-9002",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "Due on receipt",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "Due on receipt",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Steel fasteners, grade A",
+              "quantity": 1000,
+              "hsn_code": null,
+              "unit_of_measurement": "pcs",
+              "rate": 0.08,
+              "amount": 80.0
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Freight",
+              "quantity": 1,
+              "hsn_code": null,
+              "unit_of_measurement": "lot",
+              "rate": 22.5,
+              "amount": 22.5
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Steel fasteners, grade A",
+            "quantity": 1000,
+            "hsn_code": null,
+            "unit_of_measurement": "pcs",
+            "rate": 0.08,
+            "amount": 80.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Freight",
+            "quantity": 1,
+            "hsn_code": null,
+            "unit_of_measurement": "lot",
+            "rate": 22.5,
+            "amount": 22.5
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-05",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "90 Queen Street, Auckland 1010, New Zealand",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Cedar House Imports",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "JPY",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "2-8-1 Marunouchi, Chiyoda-ku, Tokyo 100-0005, Japan",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Hikari Trading Co.",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2025年5月8日",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "HT-2025-311",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "Bank transfer within 20 days",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "Bank transfer within 20 days",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Ceramic tea set",
+              "quantity": 15,
+              "hsn_code": null,
+              "unit_of_measurement": "sets",
+              "rate": 3200,
+              "amount": 48000
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Gift box",
+              "quantity": 15,
+              "hsn_code": null,
+              "unit_of_measurement": "pieces",
+              "rate": 250,
+              "amount": 3750
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Ceramic tea set",
+            "quantity": 15,
+            "hsn_code": null,
+            "unit_of_measurement": "sets",
+            "rate": 3200,
+            "amount": 48000
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Gift box",
+            "quantity": 15,
+            "hsn_code": null,
+            "unit_of_measurement": "pieces",
+            "rate": 250,
+            "amount": 3750
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-06",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "8 Water St, Halifax, NS B3H 1A1, Canada",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Harborview Cafe",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "CAD",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "31 Wellington Ave, Ottawa, ON K1A 0B1, Canada",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Maple Kitchen Tools",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "06/07/25",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "MKT-5560",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Stainless mixing bowl",
+              "quantity": 6,
+              "hsn_code": null,
+              "unit_of_measurement": "each",
+              "rate": 14.25,
+              "amount": 85.5
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Wooden spoon set",
+              "quantity": 3,
+              "hsn_code": null,
+              "unit_of_measurement": "sets",
+              "rate": 9.0,
+              "amount": 27.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Stainless mixing bowl",
+            "quantity": 6,
+            "hsn_code": null,
+            "unit_of_measurement": "each",
+            "rate": 14.25,
+            "amount": 85.5
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Wooden spoon set",
+            "quantity": 3,
+            "hsn_code": null,
+            "unit_of_measurement": "sets",
+            "rate": 9.0,
+            "amount": 27.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-07",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": "Four thousand eight hundred fifteen US dollars only",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "15 Tuas View Place, Singapore 637431",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Sunline Marine Pte Ltd",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": "15 Tuas View Place, Singapore 637431",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": "Sunline Marine Pte Ltd",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": "Singapore",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": "United Arab Emirates",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "USD",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "commercial invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "Warehouse 4, Jebel Ali Industrial Area, Dubai, United Arab Emirates",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Orbit Parts Manufacturing LLC",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": "Singapore",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": 820,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": "CIF",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2025-08-19",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "ORB-EX-440",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": 740,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": "15 Tuas View Place, Singapore 637431",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": "Same as consignee",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "60 days from invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": "Singapore",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": "Jebel Ali",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": "SL / SINGAPORE",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "CIF Singapore; 60 days from invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": "kg",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": 3,
+              "description_of_goods": "Marine pump assembly",
+              "quantity": 3,
+              "hsn_code": null,
+              "unit_of_measurement": "units",
+              "rate": 1450.0,
+              "amount": 4350.0
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": 9,
+              "description_of_goods": "Replacement seal kit",
+              "quantity": 9,
+              "hsn_code": null,
+              "unit_of_measurement": "sets",
+              "rate": 85.0,
+              "amount": 765.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": 3,
+            "description_of_goods": "Marine pump assembly",
+            "quantity": 3,
+            "hsn_code": null,
+            "unit_of_measurement": "units",
+            "rate": 1450.0,
+            "amount": 4350.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": 9,
+            "description_of_goods": "Replacement seal kit",
+            "quantity": 9,
+            "hsn_code": null,
+            "unit_of_measurement": "sets",
+            "rate": 85.0,
+            "amount": 765.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-08",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "4 Station Road, York YO1 6AA, UK",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Mill House Cafe",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "GBP",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Cedar & Stone Bakery Supply",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "9 Sep 2025",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "CS-208",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Flour sacks",
+              "quantity": 5,
+              "hsn_code": null,
+              "unit_of_measurement": "sacks",
+              "rate": 12.0,
+              "amount": 60.0
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": null,
+              "quantity": null,
+              "hsn_code": null,
+              "unit_of_measurement": null,
+              "rate": null,
+              "amount": null
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Flour sacks",
+            "quantity": 5,
+            "hsn_code": null,
+            "unit_of_measurement": "sacks",
+            "rate": 12.0,
+            "amount": 60.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": null,
+            "quantity": null,
+            "hsn_code": null,
+            "unit_of_measurement": null,
+            "rate": null,
+            "amount": null
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-09",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "100 Main St, Winnipeg, MB R3C 1A5, Canada",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Prairie Foods Inc.",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": "Canada",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": "UK",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "CAD",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "commercial invoice - export",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "6 Mill Road, Canterbury CT1 2AA, UK",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Riverbend Agri Exports Ltd.",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": 10240,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "2025-10-02",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "RA-1009",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": 10000,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "CAD 12,400 payable at sight",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": "Port of Montreal",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": "Port of Felixstowe",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": "PFI / WINNIPEG / LOT 9",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "CAD 12,400 payable at sight",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": "kg",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": 400,
+              "description_of_goods": "Dried lentils",
+              "quantity": 400,
+              "hsn_code": null,
+              "unit_of_measurement": "bags",
+              "rate": 31.0,
+              "amount": 12400.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": 400,
+            "description_of_goods": "Dried lentils",
+            "quantity": 400,
+            "hsn_code": null,
+            "unit_of_measurement": "bags",
+            "rate": 31.0,
+            "amount": 12400.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 27,
+      "correct_fields": 0,
+      "incorrect_fields": 27,
+      "missing_fields": 27,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 1,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    },
+    {
+      "document_id": "inv-10",
+      "fields": [
+        {
+          "field": "amount_in_words",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_address",
+          "expected": "Am Sandtorkai 55, 20457 Hamburg, Germany",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "buyer_name",
+          "expected": "Nordlicht Forschung GmbH",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "consignee_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "country_of_origin",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "currency",
+          "expected": "CHF",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "document_type",
+          "expected": "invoice",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_address",
+          "expected": "Seestrasse 21, 8002 Zürich, Switzerland",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "exporter_name",
+          "expected": "Lumen Labs AG",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "final_destination",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "gross_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "incoterms",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_date",
+          "expected": "11.03.2025",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "invoice_number",
+          "expected": "LL-88",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "net_weight",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_address",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "notify_party_name",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "payment_terms",
+          "expected": "15 days",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_discharge",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "port_of_loading",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "shipping_marks",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "terms_of_delivery_and_payment",
+          "expected": "15 days",
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "weight_unit",
+          "expected": null,
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items",
+          "expected": [
+            {
+              "sr_no": 1,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Optical calibration unit",
+              "quantity": 2,
+              "hsn_code": null,
+              "unit_of_measurement": "units",
+              "rate": 725.0,
+              "amount": 1450.0
+            },
+            {
+              "sr_no": 2,
+              "marks_and_numbers": null,
+              "number_of_packages": null,
+              "description_of_goods": "Calibration certificate",
+              "quantity": 2,
+              "hsn_code": null,
+              "unit_of_measurement": "documents",
+              "rate": 40.0,
+              "amount": 80.0
+            }
+          ],
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[0]",
+          "expected": {
+            "sr_no": 1,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Optical calibration unit",
+            "quantity": 2,
+            "hsn_code": null,
+            "unit_of_measurement": "units",
+            "rate": 725.0,
+            "amount": 1450.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        },
+        {
+          "field": "line_items[1]",
+          "expected": {
+            "sr_no": 2,
+            "marks_and_numbers": null,
+            "number_of_packages": null,
+            "description_of_goods": "Calibration certificate",
+            "quantity": 2,
+            "hsn_code": null,
+            "unit_of_measurement": "documents",
+            "rate": 40.0,
+            "amount": 80.0
+          },
+          "actual": null,
+          "exact_match": false,
+          "correct": false,
+          "matched_by": null,
+          "missing": true,
+          "unexpected": false
+        }
+      ],
+      "total_fields": 28,
+      "correct_fields": 0,
+      "incorrect_fields": 28,
+      "missing_fields": 28,
+      "exact_matches": 0,
+      "normalized_text_matches": 0,
+      "normalized_date_matches": 0,
+      "numeric_tolerance_matches": 0,
+      "field_completeness": 0.0,
+      "unexpected_values": 0,
+      "field_accuracy": 0.0,
+      "line_items": {
+        "expected_count": 2,
+        "actual_count": null,
+        "matched_count": 0,
+        "count_correct": false
+      }
+    }
+  ]
+}

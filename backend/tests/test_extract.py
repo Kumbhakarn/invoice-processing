@@ -12,7 +12,8 @@ from pypdf import PdfWriter
 from docextract.api.routes import extract as extract_route
 from docextract.core.config import Settings
 from docextract.main import app
-from docextract.schemas import InvoiceExtractionData
+from docextract.schemas import InvoiceExtractionData, InvoiceLineItem
+from docextract.services import extractor
 
 _LIMIT = 1024
 
@@ -109,6 +110,31 @@ def test_valid_supported_file_reaches_extraction(
     assert response.status_code == 200
     assert response.json()["invoice_number"] == "INV-1"
     assert calls == [(content, content_type, filename)]
+
+
+def test_extraction_response_serializes_nullable_schema_fields(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def extract(*args: object) -> InvoiceExtractionData:
+        return InvoiceExtractionData(
+            invoice_number="INV-SERIALIZE",
+            line_items=[InvoiceLineItem(sr_no=1)],
+        )
+
+    monkeypatch.setattr(extract_route, "extract_document_data", extract)
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert set(payload) == set(InvoiceExtractionData.model_fields)
+    assert payload["invoice_number"] == "INV-SERIALIZE"
+    assert payload["buyer_name"] is None
+    assert set(payload["line_items"][0]) == set(InvoiceLineItem.model_fields)
 
 
 def test_empty_upload_returns_bad_request(
@@ -325,3 +351,89 @@ def test_resource_limit_defaults() -> None:
     assert settings.max_pdf_pages == 50
     assert settings.max_image_width == 10_000
     assert settings.max_image_height == 10_000
+
+
+def test_provider_not_configured_returns_service_unavailable(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        extractor,
+        "get_settings",
+        lambda: Settings(openai_api_key=None, gemini_api_key=None, _env_file=None),
+    )
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == (
+        "Configure OPENAI_API_KEY, GEMINI_API_KEY, or both in backend/.env"
+    )
+
+
+def test_provider_failures_return_bad_gateway(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        extractor,
+        "get_settings",
+        lambda: Settings(openai_api_key="test-openai", gemini_api_key="test-gemini"),
+    )
+
+    def fail_openai(*args: object, **kwargs: object) -> InvoiceExtractionData:
+        raise RuntimeError("OpenAI unavailable")
+
+    def fail_gemini(*args: object, **kwargs: object) -> InvoiceExtractionData:
+        raise RuntimeError("Gemini unavailable")
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", fail_openai)
+    monkeypatch.setattr(extractor, "_extract_with_gemini", fail_gemini)
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "detail": "Invoice extraction failed with all configured AI providers."
+    }
+
+
+def test_invalid_provider_response_returns_bad_gateway(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        extractor,
+        "get_settings",
+        lambda: Settings(openai_api_key="test-openai", gemini_api_key="test-gemini"),
+    )
+
+    def invalid_openai(*args: object, **kwargs: object) -> InvoiceExtractionData:
+        raise ValueError("Provider response could not be parsed")
+
+    class FakeGeminiModels:
+        def generate_content(self, **kwargs: object) -> object:
+            return type("Response", (), {"text": '{"invoice_number": 123}'})()
+
+    class FakeGeminiClient:
+        def __init__(self, **kwargs: object) -> None:
+            self.models = FakeGeminiModels()
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", invalid_openai)
+    monkeypatch.setattr(extractor.genai, "Client", FakeGeminiClient)
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 502
+    assert response.json() == {
+        "detail": "Invoice extraction failed with all configured AI providers."
+    }
