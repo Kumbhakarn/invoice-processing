@@ -4,10 +4,12 @@ import asyncio
 import base64
 import logging
 from collections.abc import Callable
+from typing import cast
 
 from google import genai
 from google.genai import types
 from openai import OpenAI
+from openai.types.responses.response_input_param import ResponseInputParam
 
 from docextract.core.config import Settings, get_settings
 from docextract.schemas import InvoiceExtractionData
@@ -44,9 +46,9 @@ def _extract_with_openai(
     else:
         document_content = {"type": "input_image", "image_url": data_url}
 
-    response = OpenAI(api_key=settings.openai_api_key, timeout=60.0).responses.parse(
-        model=settings.openai_model,
-        input=[
+    response_input = cast(
+        ResponseInputParam,
+        [
             {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
@@ -56,6 +58,10 @@ def _extract_with_openai(
                 ],
             },
         ],
+    )
+    response = OpenAI(api_key=settings.openai_api_key, timeout=60.0).responses.parse(
+        model=settings.openai_model,
+        input=response_input,
         text_format=InvoiceExtractionData,
     )
     if response.output_parsed is None:

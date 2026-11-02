@@ -6,6 +6,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
+from docextract.core.config import get_settings
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.extractor import (
     ExtractionNotConfiguredError,
@@ -46,8 +47,21 @@ async def extract_invoice(
     if mime_type == "application/octet-stream":
         mime_type = mimetypes.guess_type(filename)[0] or mime_type
 
+    max_size = get_settings().max_upload_size_bytes
+    file_bytes = await file.read(max_size + 1)
+    if len(file_bytes) > max_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Uploaded file exceeds the maximum allowed size.",
+        )
+    if not file_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty.",
+        )
+
     try:
-        return await extract_document_data(await file.read(), mime_type, filename)
+        return await extract_document_data(file_bytes, mime_type, filename)
     except ExtractionNotConfiguredError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
