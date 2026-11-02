@@ -18,6 +18,7 @@ Invoice and export-document extraction app in a monorepo. The FastAPI backend is
 - `GET /api/health` and `POST /api/extract` are implemented.
 - Extraction uses OpenAI first and Gemini as fallback. Keep provider calls asynchronous at the API boundary, timed out, and mockable in tests.
 - Uploads are bounded by configurable `MAX_UPLOAD_SIZE_BYTES` (10 MiB default), read at most limit + 1 bytes, and reject empty uploads.
+- PDF page count is limited by `MAX_PDF_PAGES` (50 default); image width and height are limited by `MAX_IMAGE_WIDTH` and `MAX_IMAGE_HEIGHT` (10,000 pixels each by default). PDF pages are counted without rendering; image dimensions are read from encoded data.
 - Upload content validation supports PDF, JPEG, and PNG; it checks basic format structure and compares actual format with extension and MIME type. Unsupported types return 415; malformed supported files return 400; oversized uploads return 413.
 - Invoice extraction response schema is in `backend/src/docextract/schemas.py`. Do not change it or extraction prompts/provider integration unless the user requests or approves that scope.
 - Upload validation runs after multipart parsing. The endpoint bounds bytes read into application memory; request-body limits at the server/proxy layer are a separate concern.

@@ -26,7 +26,7 @@ Accepts one invoice or export document as `multipart/form-data` and returns extr
 | --- | --- | --- | --- |
 | `file` | file | Yes | PDF, JPEG, or PNG document. |
 
-The default maximum upload size is 10 MiB (10,485,760 bytes), configurable with `MAX_UPLOAD_SIZE_BYTES`. Files at the configured limit are accepted. The endpoint checks the file content and compares its detected format with the filename extension and declared MIME type. A generic `application/octet-stream` MIME type is accepted when the filename extension identifies a supported format.
+The default maximum upload size is 10 MiB (10,485,760 bytes), configurable with `MAX_UPLOAD_SIZE_BYTES`. Files at the configured limit are accepted. The default maximum PDF length is 50 pages (`MAX_PDF_PAGES`). The default maximum image width and height are each 10,000 pixels (`MAX_IMAGE_WIDTH` and `MAX_IMAGE_HEIGHT`). Documents exceeding any configured limit are rejected. The endpoint checks file content and compares its detected format with the filename extension and declared MIME type. A generic `application/octet-stream` MIME type is accepted when the filename extension identifies a supported format.
 
 Supported extensions and MIME types:
 
@@ -122,7 +122,7 @@ Errors use FastAPI's standard JSON shape: `{"detail": "..."}`.
 | Status | Meaning |
 | --- | --- |
 | `400 Bad Request` | Empty file or invalid/incomplete PDF, JPEG, or PNG content. |
-| `413 Content Too Large` | File exceeds `MAX_UPLOAD_SIZE_BYTES`. |
+| `413 Content Too Large` | File exceeds `MAX_UPLOAD_SIZE_BYTES`, a PDF exceeds `MAX_PDF_PAGES`, or an image exceeds `MAX_IMAGE_WIDTH` or `MAX_IMAGE_HEIGHT`. |
 | `415 Unsupported Media Type` | Unsupported format/extension, or extension/MIME type does not match file content. |
 | `422 Unprocessable Entity` | Required multipart field is missing or the request cannot be parsed. |
 | `502 Bad Gateway` | All configured extraction providers failed. |
@@ -131,4 +131,5 @@ Errors use FastAPI's standard JSON shape: `{"detail": "..."}`.
 ## Compatibility notes
 
 - The extraction response schema is defined by `backend/src/docextract/schemas.py` and is the source of truth for generated API types.
-- Upload format checks are lightweight integrity checks, not full document decoding. Multipart parsing occurs before the route's bounded file read.
+- PDF page counting uses `pypdf` without rendering pages. PNG and JPEG dimensions are read from encoded image headers; PNG compressed data is validated in bounded output chunks without retaining decoded pixels.
+- Upload format checks are lightweight integrity checks, not full document rendering. Multipart parsing occurs before the route's bounded file read.
