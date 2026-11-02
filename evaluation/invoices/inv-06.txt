@@ -1,0 +1,8 @@
+INVOICE
+Invoice No: MKT-5560     Date: 06/07/25
+Maker: Maple Kitchen Tools, 31 Wellington Ave, Ottawa, ON K1A 0B1, Canada
+Customer: Harborview Cafe, 8 Water St, Halifax, NS B3H 1A1, Canada
+Currency CAD
+1 | Stainless mixing bowl | 6 | each | 14.25 | 85.50
+2 | Wooden spoon set | 3 | sets | 9.00 | 27.00
+Amount CAD 112.50

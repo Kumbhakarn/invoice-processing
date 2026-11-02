@@ -1,0 +1,31 @@
+{
+  "document_type": "invoice",
+  "invoice_number": "NS-1048",
+  "invoice_date": "2025-01-14",
+  "buyer_name": "Greenfield Design Studio",
+  "buyer_address": "48 Bridge Road, Bristol BS1 4QA, United Kingdom",
+  "exporter_name": "Northstar Office Supply Ltd.",
+  "exporter_address": "12 King Street, Manchester M2 6AB, United Kingdom",
+  "consignee_name": null,
+  "consignee_address": null,
+  "notify_party_name": null,
+  "notify_party_address": null,
+  "country_of_origin": null,
+  "country_of_final_destination": null,
+  "port_of_loading": null,
+  "port_of_discharge": null,
+  "final_destination": null,
+  "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "A4 recycled paper", "quantity": 10, "hsn_code": null, "unit_of_measurement": "reams", "rate": 4.5, "amount": 45.0},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Blue toner cartridge", "quantity": 2, "hsn_code": null, "unit_of_measurement": "each", "rate": 38.0, "amount": 76.0}
+  ],
+  "currency": "GBP",
+  "terms_of_delivery_and_payment": "Net 30",
+  "payment_terms": "Net 30",
+  "incoterms": null,
+  "amount_in_words": null,
+  "net_weight": null,
+  "gross_weight": null,
+  "weight_unit": null
+}

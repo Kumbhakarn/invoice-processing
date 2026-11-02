@@ -1,0 +1,14 @@
+{
+  "document_type": "invoice", "invoice_number": "BPI-9002", "invoice_date": "2025/04/06",
+  "buyer_name": "Alpine Works GmbH", "buyer_address": "Industriestrasse 9, 6020 Innsbruck, Austria",
+  "exporter_name": "Blue Peak Industrial Inc.", "exporter_address": "500 Market Street, Suite 210, San Francisco, CA 94105, USA",
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": null, "country_of_final_destination": null, "port_of_loading": null, "port_of_discharge": null,
+  "final_destination": null, "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Steel fasteners, grade A", "quantity": 1000, "hsn_code": null, "unit_of_measurement": "pcs", "rate": 0.08, "amount": 80.0},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Freight", "quantity": 1, "hsn_code": null, "unit_of_measurement": "lot", "rate": 22.5, "amount": 22.5}
+  ],
+  "currency": "USD", "terms_of_delivery_and_payment": "Due on receipt", "payment_terms": "Due on receipt", "incoterms": null,
+  "amount_in_words": null, "net_weight": null, "gross_weight": null, "weight_unit": null
+}

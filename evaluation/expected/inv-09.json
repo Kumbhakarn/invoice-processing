@@ -1,0 +1,11 @@
+{
+  "document_type": "commercial invoice - export", "invoice_number": "RA-1009", "invoice_date": "2025-10-02",
+  "buyer_name": "Prairie Foods Inc.", "buyer_address": "100 Main St, Winnipeg, MB R3C 1A5, Canada",
+  "exporter_name": "Riverbend Agri Exports Ltd.", "exporter_address": "6 Mill Road, Canterbury CT1 2AA, UK",
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": "UK", "country_of_final_destination": "Canada", "port_of_loading": "Port of Felixstowe",
+  "port_of_discharge": "Port of Montreal", "final_destination": null, "shipping_marks": "PFI / WINNIPEG / LOT 9",
+  "line_items": [{"sr_no": 1, "marks_and_numbers": null, "number_of_packages": 400, "description_of_goods": "Dried lentils", "quantity": 400, "hsn_code": null, "unit_of_measurement": "bags", "rate": 31.0, "amount": 12400.0}],
+  "currency": "CAD", "terms_of_delivery_and_payment": "CAD 12,400 payable at sight", "payment_terms": "CAD 12,400 payable at sight",
+  "incoterms": null, "amount_in_words": null, "net_weight": 10000, "gross_weight": 10240, "weight_unit": "kg"
+}

@@ -1,0 +1,17 @@
+{
+  "document_type": "commercial invoice - export",
+  "invoice_number": "EX-7719",
+  "invoice_date": "14 March 2025",
+  "buyer_name": "Maison du Lin SARL",
+  "buyer_address": "18 rue des Fleurs, 69002 Lyon, France",
+  "exporter_name": "Saffron Looms Pvt. Ltd.",
+  "exporter_address": "44 Ring Road, Surat 395002, Gujarat, India",
+  "consignee_name": "Maison du Lin SARL", "consignee_address": "18 rue des Fleurs, 69002 Lyon, France",
+  "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": "India", "country_of_final_destination": "France", "port_of_loading": "Nhava Sheva, India",
+  "port_of_discharge": "Marseille, France", "final_destination": "France", "shipping_marks": "MDL / LYON / 01-06",
+  "line_items": [{"sr_no": 1, "marks_and_numbers": null, "number_of_packages": 6, "description_of_goods": "Linen tablecloths", "quantity": 120, "hsn_code": null, "unit_of_measurement": "pcs", "rate": 18.0, "amount": 2160.0}],
+  "currency": "EUR", "terms_of_delivery_and_payment": "FOB Nhava Sheva; 30% advance, balance against documents",
+  "payment_terms": "30% advance, balance against documents", "incoterms": "FOB",
+  "amount_in_words": "Two thousand one hundred sixty euros only", "net_weight": 84, "gross_weight": 96, "weight_unit": "kg"
+}

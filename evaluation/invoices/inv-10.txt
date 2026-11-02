@@ -1,0 +1,9 @@
+LUMEN LABS
+INVOICE LL-88 | 11.03.2025
+Supplier: Lumen Labs AG, Seestrasse 21, 8002 Zürich, Switzerland
+Bill to: Nordlicht Forschung GmbH
+Am Sandtorkai 55, 20457 Hamburg, Germany
+Currency CHF | Payment: 15 days
+1 | Optical calibration unit | quantity 2 | units | unit price CHF 725.00 | CHF 1450.00
+2 | Calibration certificate | quantity 2 | documents | unit price CHF 40.00 | CHF 80.00
+Total CHF 1530.00

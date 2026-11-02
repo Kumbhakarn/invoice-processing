@@ -1,0 +1,14 @@
+{
+  "document_type": "invoice", "invoice_number": "MKT-5560", "invoice_date": "06/07/25",
+  "buyer_name": "Harborview Cafe", "buyer_address": "8 Water St, Halifax, NS B3H 1A1, Canada",
+  "exporter_name": "Maple Kitchen Tools", "exporter_address": "31 Wellington Ave, Ottawa, ON K1A 0B1, Canada",
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": null, "country_of_final_destination": null, "port_of_loading": null, "port_of_discharge": null,
+  "final_destination": null, "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Stainless mixing bowl", "quantity": 6, "hsn_code": null, "unit_of_measurement": "each", "rate": 14.25, "amount": 85.5},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Wooden spoon set", "quantity": 3, "hsn_code": null, "unit_of_measurement": "sets", "rate": 9.0, "amount": 27.0}
+  ],
+  "currency": "CAD", "terms_of_delivery_and_payment": null, "payment_terms": null, "incoterms": null,
+  "amount_in_words": null, "net_weight": null, "gross_weight": null, "weight_unit": null
+}

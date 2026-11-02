@@ -1,0 +1,19 @@
+{
+  "document_type": "tax invoice",
+  "invoice_number": "PC/25/0081",
+  "invoice_date": "03/02/2025",
+  "buyer_name": "Redgum Robotics",
+  "buyer_address": "220 Collins St, Melbourne VIC 3000, Australia",
+  "exporter_name": "Pacific Components Pty Ltd",
+  "exporter_address": "7 Harbour Rd, Fremantle WA 6160, Australia",
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": null, "country_of_final_destination": null, "port_of_loading": null,
+  "port_of_discharge": null, "final_destination": null, "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Sensor module PX", "quantity": 4, "hsn_code": null, "unit_of_measurement": null, "rate": 125.5, "amount": 502.0},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Cable harness", "quantity": 8, "hsn_code": null, "unit_of_measurement": null, "rate": 18.75, "amount": 150.0},
+    {"sr_no": 3, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Packing", "quantity": 1, "hsn_code": null, "unit_of_measurement": null, "rate": 12.0, "amount": 12.0}
+  ],
+  "currency": "AUD", "terms_of_delivery_and_payment": "due 14 days", "payment_terms": "due 14 days",
+  "incoterms": null, "amount_in_words": null, "net_weight": null, "gross_weight": null, "weight_unit": null
+}

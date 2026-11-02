@@ -1,0 +1,14 @@
+{
+  "document_type": "invoice", "invoice_number": "LL-88", "invoice_date": "11.03.2025",
+  "buyer_name": "Nordlicht Forschung GmbH", "buyer_address": "Am Sandtorkai 55, 20457 Hamburg, Germany",
+  "exporter_name": "Lumen Labs AG", "exporter_address": "Seestrasse 21, 8002 Zürich, Switzerland",
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": null, "country_of_final_destination": null, "port_of_loading": null, "port_of_discharge": null,
+  "final_destination": null, "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Optical calibration unit", "quantity": 2, "hsn_code": null, "unit_of_measurement": "units", "rate": 725.0, "amount": 1450.0},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Calibration certificate", "quantity": 2, "hsn_code": null, "unit_of_measurement": "documents", "rate": 40.0, "amount": 80.0}
+  ],
+  "currency": "CHF", "terms_of_delivery_and_payment": "15 days", "payment_terms": "15 days", "incoterms": null,
+  "amount_in_words": null, "net_weight": null, "gross_weight": null, "weight_unit": null
+}

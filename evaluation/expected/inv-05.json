@@ -1,0 +1,14 @@
+{
+  "document_type": "invoice", "invoice_number": "HT-2025-311", "invoice_date": "2025年5月8日",
+  "buyer_name": "Cedar House Imports", "buyer_address": "90 Queen Street, Auckland 1010, New Zealand",
+  "exporter_name": "Hikari Trading Co.", "exporter_address": "2-8-1 Marunouchi, Chiyoda-ku, Tokyo 100-0005, Japan",
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": null, "country_of_final_destination": null, "port_of_loading": null, "port_of_discharge": null,
+  "final_destination": null, "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Ceramic tea set", "quantity": 15, "hsn_code": null, "unit_of_measurement": "sets", "rate": 3200, "amount": 48000},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Gift box", "quantity": 15, "hsn_code": null, "unit_of_measurement": "pieces", "rate": 250, "amount": 3750}
+  ],
+  "currency": "JPY", "terms_of_delivery_and_payment": "Bank transfer within 20 days", "payment_terms": "Bank transfer within 20 days",
+  "incoterms": null, "amount_in_words": null, "net_weight": null, "gross_weight": null, "weight_unit": null
+}
