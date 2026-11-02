@@ -1,0 +1,11 @@
+NORTHSTAR OFFICE SUPPLY                         INVOICE
+Invoice No: NS-1048                         Date: 2025-01-14
+Seller: Northstar Office Supply Ltd.
+12 King Street, Manchester M2 6AB, United Kingdom
+Bill to: Greenfield Design Studio
+48 Bridge Road, Bristol BS1 4QA, United Kingdom
+Currency: GBP
+Payment: Net 30
+1 | A4 recycled paper | 10 | reams | 4.50 | 45.00
+2 | Blue toner cartridge | 2 | each | 38.00 | 76.00
+Total: GBP 121.00

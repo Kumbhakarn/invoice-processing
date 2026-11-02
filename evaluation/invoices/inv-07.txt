@@ -1,0 +1,15 @@
+COMMERCIAL INVOICE
+Invoice No: ORB-EX-440  Date: 2025-08-19
+Exporter: Orbit Parts Manufacturing LLC
+Warehouse 4, Jebel Ali Industrial Area, Dubai, United Arab Emirates
+Buyer: Sunline Marine Pte Ltd, 15 Tuas View Place, Singapore 637431
+Consignee: Sunline Marine Pte Ltd, 15 Tuas View Place, Singapore 637431
+Notify party: Same as consignee
+Country of origin: United Arab Emirates | Destination: Singapore
+Port of loading: Jebel Ali | Port of discharge: Singapore | Final destination: Singapore
+Incoterms: CIF Singapore | Payment: 60 days from invoice
+Currency USD | Marks: SL / SINGAPORE
+1 | Marine pump assembly | 3 | crates | 3 | units | 1450.00 | 4350.00
+2 | Replacement seal kit | 9 | boxes | 18 | sets | 85.00 | 765.00
+Net 740 kg; gross 820 kg; weight unit kg
+Total: Four thousand eight hundred fifteen US dollars only (USD 4815.00)

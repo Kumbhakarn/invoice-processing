@@ -1,0 +1,10 @@
+BLUE PEAK INDUSTRIAL                         INVOICE
+Invoice #BPI-9002              2025/04/06
+Sold by: Blue Peak Industrial Inc.
+500 Market Street, Suite 210, San Francisco, CA 94105, USA
+Customer: Alpine Works GmbH
+Industriestrasse 9, 6020 Innsbruck, Austria
+USD | Due on receipt
+Steel fasteners, grade A | quantity 1,000 | unit pcs | rate 0.08 | amount 80.00
+Freight | quantity 1 | unit lot | rate 22.50 | amount 22.50
+Grand total USD 102.50

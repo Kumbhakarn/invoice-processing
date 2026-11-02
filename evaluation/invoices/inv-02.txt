@@ -1,0 +1,10 @@
+PACIFIC COMPONENTS / TAX INVOICE
+Invoice: PC/25/0081     Date: 03/02/2025
+From: Pacific Components Pty Ltd, 7 Harbour Rd, Fremantle WA 6160, Australia
+To: Redgum Robotics, 220 Collins St, Melbourne VIC 3000, Australia
+Currency AUD | Terms: due 14 days
+Item                         Qty       Unit       Line
+Sensor module PX             4         125.50     502.00
+Cable harness                8         18.75      150.00
+Packing                      1         12.00      12.00
+Invoice total AUD 664.00

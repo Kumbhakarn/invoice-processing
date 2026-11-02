@@ -1,0 +1,14 @@
+{
+  "document_type": "invoice", "invoice_number": "CS-208", "invoice_date": "9 Sep 2025",
+  "buyer_name": "Mill House Cafe", "buyer_address": "4 Station Road, York YO1 6AA, UK",
+  "exporter_name": "Cedar & Stone Bakery Supply", "exporter_address": null,
+  "consignee_name": null, "consignee_address": null, "notify_party_name": null, "notify_party_address": null,
+  "country_of_origin": null, "country_of_final_destination": null, "port_of_loading": null, "port_of_discharge": null,
+  "final_destination": null, "shipping_marks": null,
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": "Flour sacks", "quantity": 5, "hsn_code": null, "unit_of_measurement": "sacks", "rate": 12.0, "amount": 60.0},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": null, "description_of_goods": null, "quantity": null, "hsn_code": null, "unit_of_measurement": null, "rate": null, "amount": null}
+  ],
+  "currency": "GBP", "terms_of_delivery_and_payment": null, "payment_terms": null, "incoterms": null,
+  "amount_in_words": null, "net_weight": null, "gross_weight": null, "weight_unit": null
+}

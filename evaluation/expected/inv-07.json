@@ -1,0 +1,15 @@
+{
+  "document_type": "commercial invoice", "invoice_number": "ORB-EX-440", "invoice_date": "2025-08-19",
+  "buyer_name": "Sunline Marine Pte Ltd", "buyer_address": "15 Tuas View Place, Singapore 637431",
+  "exporter_name": "Orbit Parts Manufacturing LLC", "exporter_address": "Warehouse 4, Jebel Ali Industrial Area, Dubai, United Arab Emirates",
+  "consignee_name": "Sunline Marine Pte Ltd", "consignee_address": "15 Tuas View Place, Singapore 637431",
+  "notify_party_name": "Same as consignee", "notify_party_address": "15 Tuas View Place, Singapore 637431",
+  "country_of_origin": "United Arab Emirates", "country_of_final_destination": "Singapore", "port_of_loading": "Jebel Ali",
+  "port_of_discharge": "Singapore", "final_destination": "Singapore", "shipping_marks": "SL / SINGAPORE",
+  "line_items": [
+    {"sr_no": 1, "marks_and_numbers": null, "number_of_packages": 3, "description_of_goods": "Marine pump assembly", "quantity": 3, "hsn_code": null, "unit_of_measurement": "units", "rate": 1450.0, "amount": 4350.0},
+    {"sr_no": 2, "marks_and_numbers": null, "number_of_packages": 9, "description_of_goods": "Replacement seal kit", "quantity": 9, "hsn_code": null, "unit_of_measurement": "sets", "rate": 85.0, "amount": 765.0}
+  ],
+  "currency": "USD", "terms_of_delivery_and_payment": "CIF Singapore; 60 days from invoice", "payment_terms": "60 days from invoice",
+  "incoterms": "CIF", "amount_in_words": "Four thousand eight hundred fifteen US dollars only", "net_weight": 740, "gross_weight": 820, "weight_unit": "kg"
+}
