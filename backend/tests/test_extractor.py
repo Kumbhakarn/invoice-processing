@@ -1,12 +1,28 @@
 """Extraction service tests using mocked provider functions only."""
 
 import asyncio
+from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 
 from docextract.core.config import Settings
 from docextract.schemas import InvoiceExtractionData
 from docextract.services import extractor
+
+
+def _settings(monkeypatch: pytest.MonkeyPatch, openai: str | None, gemini: str | None) -> None:
+    monkeypatch.setattr(
+        extractor,
+        "get_settings",
+        lambda: Settings(openai_api_key=openai, gemini_api_key=gemini),
+    )
+
+
+def _run() -> InvoiceExtractionData:
+    return asyncio.run(
+        extractor.extract_document_data(b"document", "application/pdf", "invoice.pdf")
+    )
 
 
 def test_openai_failure_falls_back_to_gemini(
@@ -36,3 +52,193 @@ def test_openai_failure_falls_back_to_gemini(
 
     assert result.invoice_number == "INV-FALLBACK"
     assert calls == ["openai", "gemini"]
+
+
+def test_openai_success_does_not_call_gemini(monkeypatch: pytest.MonkeyPatch) -> None:
+    _settings(monkeypatch, "test-openai", "test-gemini")
+    calls: list[str] = []
+    monkeypatch.setattr(
+        extractor,
+        "_extract_with_openai",
+        lambda *args: (calls.append("openai") or InvoiceExtractionData(invoice_number="INV-1")),
+    )
+    monkeypatch.setattr(
+        extractor,
+        "_extract_with_gemini",
+        lambda *args: (calls.append("gemini") or InvoiceExtractionData()),
+    )
+
+    result = _run()
+
+    assert isinstance(result, InvoiceExtractionData)
+    assert result.invoice_number == "INV-1"
+    assert calls == ["openai"]
+
+
+@pytest.mark.parametrize(
+    ("openai_key", "gemini_key", "expected_calls"),
+    [
+        (None, "gemini-key", ["gemini"]),
+        ("openai-key", None, ["openai"]),
+        (None, None, []),
+    ],
+)
+def test_missing_credentials_only_attempt_configured_providers(
+    monkeypatch: pytest.MonkeyPatch,
+    openai_key: str | None,
+    gemini_key: str | None,
+    expected_calls: list[str],
+) -> None:
+    _settings(monkeypatch, openai_key, gemini_key)
+    calls: list[str] = []
+    monkeypatch.setattr(
+        extractor,
+        "_extract_with_openai",
+        lambda *args: (calls.append("openai") or InvoiceExtractionData()),
+    )
+    monkeypatch.setattr(
+        extractor,
+        "_extract_with_gemini",
+        lambda *args: (calls.append("gemini") or InvoiceExtractionData()),
+    )
+
+    if not expected_calls:
+        with pytest.raises(extractor.ExtractionNotConfiguredError):
+            _run()
+    else:
+        _run()
+    assert calls == expected_calls
+
+
+def test_openai_timeout_falls_back_once_to_gemini(monkeypatch: pytest.MonkeyPatch) -> None:
+    _settings(monkeypatch, "test-openai", "test-gemini")
+    calls: list[str] = []
+
+    def timeout(*args: object) -> InvoiceExtractionData:
+        calls.append("openai")
+        raise TimeoutError("timed out")
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", timeout)
+    monkeypatch.setattr(
+        extractor,
+        "_extract_with_gemini",
+        lambda *args: (calls.append("gemini") or InvoiceExtractionData(invoice_number="fallback")),
+    )
+
+    assert _run().invoice_number == "fallback"
+    assert calls == ["openai", "gemini"]
+
+
+def test_gemini_timeout_is_reported_after_openai_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _settings(monkeypatch, "test-openai", "test-gemini")
+    calls: list[str] = []
+
+    def fail_openai(*args: object) -> InvoiceExtractionData:
+        calls.append("openai")
+        raise RuntimeError("offline")
+
+    def timeout_gemini(*args: object) -> InvoiceExtractionData:
+        calls.append("gemini")
+        raise TimeoutError("timed out")
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", fail_openai)
+    monkeypatch.setattr(extractor, "_extract_with_gemini", timeout_gemini)
+    with pytest.raises(extractor.ExtractionProviderError, match="TimeoutError"):
+        _run()
+    assert calls == ["openai", "gemini"]
+
+
+def test_both_providers_fail_in_order(monkeypatch: pytest.MonkeyPatch) -> None:
+    _settings(monkeypatch, "test-openai", "test-gemini")
+    calls: list[str] = []
+
+    def fail(name: str):
+        def provider(*args: object) -> InvoiceExtractionData:
+            calls.append(name)
+            raise RuntimeError("unavailable")
+
+        return provider
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", fail("openai"))
+    monkeypatch.setattr(extractor, "_extract_with_gemini", fail("gemini"))
+    with pytest.raises(extractor.ExtractionProviderError):
+        _run()
+    assert calls == ["openai", "gemini"]
+
+
+@pytest.mark.parametrize(
+    "error",
+    [ValueError("bad JSON"), TypeError("invalid field"), RuntimeError("empty response")],
+)
+def test_invalid_or_empty_openai_output_falls_back(
+    monkeypatch: pytest.MonkeyPatch,
+    error: Exception,
+) -> None:
+    _settings(monkeypatch, "test-openai", "test-gemini")
+    calls: list[str] = []
+
+    def invalid(*args: object) -> InvoiceExtractionData:
+        calls.append("openai")
+        raise error
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", invalid)
+    monkeypatch.setattr(
+        extractor,
+        "_extract_with_gemini",
+        lambda *args: (calls.append("gemini") or InvoiceExtractionData(invoice_number="ok")),
+    )
+    assert _run().invoice_number == "ok"
+    assert calls == ["openai", "gemini"]
+
+
+def test_openai_adapter_uses_structured_sdk_response_and_timeout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    received: dict[str, object] = {}
+    expected = InvoiceExtractionData(invoice_number="SDK-1")
+
+    class Responses:
+        def parse(self, **kwargs: object) -> object:
+            received["parse"] = kwargs
+            return SimpleNamespace(output_parsed=expected)
+
+    class Client:
+        def __init__(self, **kwargs: object) -> None:
+            received["client"] = kwargs
+            self.responses = Responses()
+
+    monkeypatch.setattr(extractor, "OpenAI", Client)
+    result = extractor._extract_with_openai(
+        b"pdf", "application/pdf", "invoice.pdf", Settings(openai_api_key="key")
+    )
+    assert result is expected
+    assert received["client"] == {"api_key": "key", "timeout": 60.0}
+    assert received["parse"]["text_format"] is InvoiceExtractionData  # type: ignore[index]
+
+
+@pytest.mark.parametrize("response_text", [None, "not json", '{"invoice_number": 123}'])
+def test_gemini_adapter_rejects_empty_malformed_and_schema_invalid_data(
+    monkeypatch: pytest.MonkeyPatch,
+    response_text: str | None,
+) -> None:
+    received: dict[str, object] = {}
+
+    class Models:
+        def generate_content(self, **kwargs: object) -> object:
+            received["generate"] = kwargs
+            return SimpleNamespace(text=response_text)
+
+    class Client:
+        def __init__(self, **kwargs: object) -> None:
+            received["client"] = kwargs
+            self.models = Models()
+
+    monkeypatch.setattr(extractor.genai, "Client", Client)
+    with pytest.raises((ValueError, ValidationError)):
+        extractor._extract_with_gemini(
+            b"pdf", "application/pdf", Settings(gemini_api_key="key")
+        )
+    assert received["client"]["http_options"].timeout == 60_000  # type: ignore[index]
+    assert received["generate"]["config"].response_schema is InvoiceExtractionData  # type: ignore[index]
