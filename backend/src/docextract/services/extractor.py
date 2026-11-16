@@ -26,6 +26,28 @@ class ExtractionProviderError(RuntimeError):
     """Raised when all configured AI providers fail to extract the document."""
 
 
+def _provider_error_category(error: Exception) -> str:
+    """Classify common SDK failures for useful diagnostics without retrying."""
+    name = type(error).__name__.lower()
+    message = str(error).lower()
+    status_code = getattr(error, "status_code", None)
+    if "auth" in name or "permission" in name or status_code == 401 or status_code == 403:
+        return "authentication"
+    if "quota" in name or "billing" in name or "insufficient_quota" in message:
+        return "quota/billing"
+    if "ratelimit" in name or "rate_limit" in name or status_code == 429:
+        return "rate-limit"
+    if isinstance(error, (TimeoutError, asyncio.TimeoutError)) or "timeout" in name:
+        return "timeout"
+    if "connection" in name or "network" in name:
+        return "network"
+    if isinstance(status_code, int) and status_code >= 500:
+        return "transient-server"
+    if isinstance(error, (ValueError, TypeError)):
+        return "invalid-response"
+    return "provider-error"
+
+
 def _extract_with_openai(
     file_bytes: bytes,
     mime_type: str,
@@ -122,7 +144,11 @@ async def extract_document_data(
         try:
             return await asyncio.to_thread(provider_call)
         except Exception as error:
-            logger.warning("%s document extraction failed", provider_name)
+            logger.warning(
+                "%s document extraction failed (%s)",
+                provider_name,
+                _provider_error_category(error),
+            )
             logger.debug("%s extraction error: %s", provider_name, error, exc_info=True)
             errors.append(f"{provider_name}: {type(error).__name__}")
 
