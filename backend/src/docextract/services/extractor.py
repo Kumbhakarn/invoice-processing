@@ -25,6 +25,10 @@ class ExtractionNotConfiguredError(RuntimeError):
 class ExtractionProviderError(RuntimeError):
     """Raised when all configured AI providers fail to extract the document."""
 
+    def __init__(self, message: str, category: str = "provider-error") -> None:
+        super().__init__(message)
+        self.category = category
+
 
 def _provider_error_category(error: Exception) -> str:
     """Classify common SDK failures for useful diagnostics without retrying."""
@@ -140,6 +144,7 @@ async def extract_document_data(
         )
 
     errors: list[str] = []
+    categories: list[str] = []
     for provider_name, provider_call in providers:
         try:
             return await asyncio.to_thread(provider_call)
@@ -149,9 +154,17 @@ async def extract_document_data(
                 provider_name,
                 _provider_error_category(error),
             )
-            logger.debug("%s extraction error: %s", provider_name, error, exc_info=True)
+            logger.debug(
+                "%s extraction error type: %s",
+                provider_name,
+                type(error).__name__,
+            )
             errors.append(f"{provider_name}: {type(error).__name__}")
+            categories.append(_provider_error_category(error))
 
+    category_priority = ("timeout", "authentication", "rate-limit", "invalid-response")
+    category = next((item for item in category_priority if item in categories), "provider-error")
     raise ExtractionProviderError(
-        "All configured document extraction providers failed: " + "; ".join(errors)
+        "All configured document extraction providers failed: " + "; ".join(errors),
+        category,
     )

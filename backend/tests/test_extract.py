@@ -149,6 +149,7 @@ def test_empty_upload_returns_bad_request(
     )
 
     assert response.status_code == 400
+    assert response.json()["error"]["code"] == "EMPTY_FILE"
     assert calls == []
 
 
@@ -181,6 +182,7 @@ def test_file_over_limit_returns_payload_too_large(
     )
 
     assert response.status_code == 413
+    assert response.json()["error"]["code"] == "FILE_TOO_LARGE"
     assert calls == []
 
 
@@ -205,6 +207,7 @@ def test_invalid_document_content_returns_bad_request(
     response = client.post("/api/extract", files={"file": (filename, content, content_type)})
 
     assert response.status_code == 400
+    assert response.json()["error"]["code"] == "INVALID_DOCUMENT"
     assert calls == []
 
 
@@ -228,6 +231,7 @@ def test_declared_type_mismatch_returns_unsupported_media_type(
     response = client.post("/api/extract", files={"file": (filename, content, content_type)})
 
     assert response.status_code == 415
+    assert response.json()["error"]["code"] == "UNSUPPORTED_FORMAT"
     assert calls == []
 
 
@@ -243,6 +247,7 @@ def test_unsupported_image_format_returns_unsupported_media_type(
     )
 
     assert response.status_code == 415
+    assert response.json()["error"]["code"] == "UNSUPPORTED_FORMAT"
     assert calls == []
 
 
@@ -276,6 +281,7 @@ def test_pdf_above_page_limit_returns_payload_too_large(
     )
 
     assert response.status_code == 413
+    assert response.json()["error"]["code"] == "PDF_PAGE_LIMIT_EXCEEDED"
     assert calls == []
 
 
@@ -322,6 +328,7 @@ def test_image_over_dimension_limit_returns_payload_too_large(
     response = client.post("/api/extract", files={"file": (filename, content, content_type)})
 
     assert response.status_code == 413
+    assert response.json()["error"]["code"] == "IMAGE_DIMENSION_LIMIT_EXCEEDED"
     assert calls == []
 
 
@@ -338,6 +345,7 @@ def test_malformed_pdf_returns_bad_request(
     )
 
     assert response.status_code == 400
+    assert response.json()["error"]["code"] == "INVALID_DOCUMENT"
     assert calls == []
 
 
@@ -369,9 +377,12 @@ def test_provider_not_configured_returns_service_unavailable(
     )
 
     assert response.status_code == 503
-    assert response.json()["detail"] == (
-        "Configure OPENAI_API_KEY, GEMINI_API_KEY, or both in backend/.env"
-    )
+    assert response.json() == {
+        "error": {
+            "code": "MISSING_PROVIDER_CONFIGURATION",
+            "message": "No AI extraction provider is configured.",
+        }
+    }
 
 
 def test_provider_failures_return_bad_gateway(
@@ -400,7 +411,10 @@ def test_provider_failures_return_bad_gateway(
 
     assert response.status_code == 502
     assert response.json() == {
-        "detail": "Invoice extraction failed with all configured AI providers."
+        "error": {
+            "code": "PROVIDER_FAILURE",
+            "message": "Invoice extraction failed with configured AI providers.",
+        }
     }
 
 
@@ -435,5 +449,80 @@ def test_invalid_provider_response_returns_bad_gateway(
 
     assert response.status_code == 502
     assert response.json() == {
-        "detail": "Invoice extraction failed with all configured AI providers."
+        "error": {
+            "code": "INVALID_AI_RESPONSE",
+            "message": "AI provider returned an invalid response.",
+        }
     }
+
+
+@pytest.mark.parametrize(
+    ("category", "status_code", "code"),
+    [
+        ("authentication", 502, "PROVIDER_AUTHENTICATION_FAILURE"),
+        ("rate-limit", 503, "PROVIDER_RATE_LIMIT"),
+        ("timeout", 504, "PROVIDER_TIMEOUT"),
+        ("provider-error", 502, "PROVIDER_FAILURE"),
+        ("invalid-response", 502, "INVALID_AI_RESPONSE"),
+    ],
+)
+def test_provider_error_categories_use_standard_response(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    category: str,
+    status_code: int,
+    code: str,
+) -> None:
+    async def fail(*args: object) -> InvoiceExtractionData:
+        raise extractor.ExtractionProviderError("private provider details", category)
+
+    monkeypatch.setattr(extract_route, "extract_document_data", fail)
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == status_code
+    assert response.json()["error"]["code"] == code
+    assert "private provider details" not in response.text
+
+
+def test_missing_file_returns_standard_validation_error(client: TestClient) -> None:
+    response = client.post("/api/extract")
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": {"code": "INVALID_REQUEST", "message": "The request is invalid."}
+    }
+
+
+def test_unknown_route_uses_standard_http_error(client: TestClient) -> None:
+    response = client.get("/api/does-not-exist")
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "error": {"code": "NOT_FOUND", "message": "The requested resource was not found."}
+    }
+
+
+def test_unexpected_error_returns_generic_internal_error(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fail(*args: object) -> InvoiceExtractionData:
+        raise RuntimeError("secret or document content")
+
+    monkeypatch.setattr(extract_route, "extract_document_data", fail)
+    response = TestClient(app, raise_server_exceptions=False).post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "error": {
+            "code": "INTERNAL_SERVER_ERROR",
+            "message": "An unexpected server error occurred.",
+        }
+    }
+    assert "secret or document content" not in response.text
