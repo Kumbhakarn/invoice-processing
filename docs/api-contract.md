@@ -117,6 +117,11 @@ The top-level fields are:
 
 ### Errors
 
+The API returns an `X-Request-ID` response header on successful and failed requests.
+The server generates a new UUID for each request and uses it to correlate application
+logs. Error responses include the same ID in the error object. The extraction success
+body remains unchanged.
+
 Errors use a consistent JSON shape. The `code` is stable for client handling; the
 `message` is safe for display and does not include provider exception details.
 
@@ -124,7 +129,8 @@ Errors use a consistent JSON shape. The `code` is stable for client handling; th
 {
   "error": {
     "code": "FILE_TOO_LARGE",
-    "message": "Uploaded file exceeds the maximum allowed size."
+    "message": "Uploaded file exceeds the maximum allowed size.",
+    "request_id": "2b4f162b-6868-4618-8a2a-79da3fc4fdad"
   }
 }
 ```
@@ -154,3 +160,4 @@ so clients that read `detail` should migrate to `error.code` and `error.message`
 - The extraction response schema is defined by `backend/src/docextract/schemas.py` and is the source of truth for generated API types.
 - PDF page counting uses `pypdf` without rendering pages. PNG and JPEG dimensions are read from encoded image headers; PNG compressed data is validated in bounded output chunks without retaining decoded pixels.
 - Upload format checks are lightweight integrity checks, not full document rendering. Multipart parsing occurs before the route's bounded file read.
+- Application logs are newline-delimited JSON. `LOG_LEVEL` controls the minimum level and defaults to `INFO`. Logs include request/provider metadata and traceback frames but omit raw exception messages, credentials, uploaded contents, and extracted invoice data.

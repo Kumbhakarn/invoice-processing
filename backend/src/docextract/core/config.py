@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     max_pdf_pages: int = 50
     max_image_width: int = 10_000
     max_image_height: int = 10_000
+    log_level: str = "INFO"
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_ROOT / ".env",
