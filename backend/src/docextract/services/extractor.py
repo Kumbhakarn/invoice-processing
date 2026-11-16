@@ -3,6 +3,8 @@
 import asyncio
 import base64
 import logging
+import time
+import traceback
 from collections.abc import Callable
 from typing import cast
 
@@ -12,6 +14,7 @@ from openai import OpenAI
 from openai.types.responses.response_input_param import ResponseInputParam
 
 from docextract.core.config import Settings, get_settings
+from docextract.core.request_context import get_request_id
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.prompt_template import SYSTEM_PROMPT, build_user_prompt
 
@@ -146,21 +149,50 @@ async def extract_document_data(
     errors: list[str] = []
     categories: list[str] = []
     for provider_name, provider_call in providers:
+        model_name = settings.openai_model if provider_name == "OpenAI" else settings.gemini_model
+        provider_started_at = time.perf_counter()
+        logger.info(
+            "AI provider attempt started",
+            extra={
+                "event": "provider_attempt_started",
+                "request_id": get_request_id(),
+                "provider": provider_name,
+                "model": model_name,
+                "outcome": "started",
+            },
+        )
         try:
-            return await asyncio.to_thread(provider_call)
-        except Exception as error:
-            logger.warning(
-                "%s document extraction failed (%s)",
-                provider_name,
-                _provider_error_category(error),
+            result = await asyncio.to_thread(provider_call)
+            logger.info(
+                "AI provider attempt completed",
+                extra={
+                    "event": "provider_attempt_finished",
+                    "request_id": get_request_id(),
+                    "provider": provider_name,
+                    "model": model_name,
+                    "duration_ms": round((time.perf_counter() - provider_started_at) * 1000, 2),
+                    "outcome": "success",
+                },
             )
-            logger.debug(
-                "%s extraction error type: %s",
-                provider_name,
-                type(error).__name__,
+            return result
+        except Exception as error:
+            category = _provider_error_category(error)
+            logger.warning(
+                "AI provider attempt failed",
+                extra={
+                    "event": "provider_attempt_failed",
+                    "request_id": get_request_id(),
+                    "provider": provider_name,
+                    "model": model_name,
+                    "duration_ms": round((time.perf_counter() - provider_started_at) * 1000, 2),
+                    "outcome": "failure",
+                    "error_category": category,
+                    "error_type": type(error).__name__,
+                    "stack_trace": traceback.format_tb(error.__traceback__),
+                },
             )
             errors.append(f"{provider_name}: {type(error).__name__}")
-            categories.append(_provider_error_category(error))
+            categories.append(category)
 
     category_priority = ("timeout", "authentication", "rate-limit", "invalid-response")
     category = next((item for item in category_priority if item in categories), "provider-error")

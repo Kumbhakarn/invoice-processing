@@ -7,7 +7,7 @@ import zlib
 from pathlib import PurePath
 from typing import Annotated
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Request, UploadFile
 from pypdf import PdfReader
 
 from docextract.api.errors import ApiError
@@ -178,6 +178,7 @@ def _check_document_resources(file_bytes: bytes, mime_type: str) -> None:
 
 @router.post("/extract", response_model=InvoiceExtractionData)
 async def extract_invoice(
+    request: Request,
     file: Annotated[UploadFile, File(description="An invoice PDF or image file")],
 ) -> InvoiceExtractionData:
     """Accept an invoice document and return AI-extracted structured data."""
@@ -187,6 +188,7 @@ async def extract_invoice(
 
     max_size = get_settings().max_upload_size_bytes
     file_bytes = await file.read(max_size + 1)
+    request.state.upload_size_bytes = len(file_bytes)
     if len(file_bytes) > max_size:
         raise ApiError(413, "FILE_TOO_LARGE", "Uploaded file exceeds the maximum allowed size.")
     if not file_bytes:

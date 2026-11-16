@@ -2,8 +2,10 @@
 
 import binascii
 import io
+import logging
 import struct
 import zlib
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +13,7 @@ from pypdf import PdfWriter
 
 from docextract.api.routes import extract as extract_route
 from docextract.core.config import Settings
+from docextract.core.logging_config import JsonLogFormatter
 from docextract.main import app
 from docextract.schemas import InvoiceExtractionData, InvoiceLineItem
 from docextract.services import extractor
@@ -83,6 +86,17 @@ def _mock_extraction(
 
     monkeypatch.setattr(extract_route, "extract_document_data", extract)
     return calls
+
+
+def _assert_error_response(
+    response,
+    code: str,
+    message: str,
+) -> None:
+    request_id = response.headers["X-Request-ID"]
+    assert response.json() == {
+        "error": {"code": code, "message": message, "request_id": request_id}
+    }
 
 
 @pytest.mark.parametrize(
@@ -377,12 +391,11 @@ def test_provider_not_configured_returns_service_unavailable(
     )
 
     assert response.status_code == 503
-    assert response.json() == {
-        "error": {
-            "code": "MISSING_PROVIDER_CONFIGURATION",
-            "message": "No AI extraction provider is configured.",
-        }
-    }
+    _assert_error_response(
+        response,
+        "MISSING_PROVIDER_CONFIGURATION",
+        "No AI extraction provider is configured.",
+    )
 
 
 def test_provider_failures_return_bad_gateway(
@@ -410,12 +423,11 @@ def test_provider_failures_return_bad_gateway(
     )
 
     assert response.status_code == 502
-    assert response.json() == {
-        "error": {
-            "code": "PROVIDER_FAILURE",
-            "message": "Invoice extraction failed with configured AI providers.",
-        }
-    }
+    _assert_error_response(
+        response,
+        "PROVIDER_FAILURE",
+        "Invoice extraction failed with configured AI providers.",
+    )
 
 
 def test_invalid_provider_response_returns_bad_gateway(
@@ -448,12 +460,11 @@ def test_invalid_provider_response_returns_bad_gateway(
     )
 
     assert response.status_code == 502
-    assert response.json() == {
-        "error": {
-            "code": "INVALID_AI_RESPONSE",
-            "message": "AI provider returned an invalid response.",
-        }
-    }
+    _assert_error_response(
+        response,
+        "INVALID_AI_RESPONSE",
+        "AI provider returned an invalid response.",
+    )
 
 
 @pytest.mark.parametrize(
@@ -491,18 +502,14 @@ def test_missing_file_returns_standard_validation_error(client: TestClient) -> N
     response = client.post("/api/extract")
 
     assert response.status_code == 422
-    assert response.json() == {
-        "error": {"code": "INVALID_REQUEST", "message": "The request is invalid."}
-    }
+    _assert_error_response(response, "INVALID_REQUEST", "The request is invalid.")
 
 
 def test_unknown_route_uses_standard_http_error(client: TestClient) -> None:
     response = client.get("/api/does-not-exist")
 
     assert response.status_code == 404
-    assert response.json() == {
-        "error": {"code": "NOT_FOUND", "message": "The requested resource was not found."}
-    }
+    _assert_error_response(response, "NOT_FOUND", "The requested resource was not found.")
 
 
 def test_unexpected_error_returns_generic_internal_error(
@@ -519,10 +526,117 @@ def test_unexpected_error_returns_generic_internal_error(
     )
 
     assert response.status_code == 500
-    assert response.json() == {
-        "error": {
-            "code": "INTERNAL_SERVER_ERROR",
-            "message": "An unexpected server error occurred.",
-        }
-    }
+    _assert_error_response(
+        response,
+        "INTERNAL_SERVER_ERROR",
+        "An unexpected server error occurred.",
+    )
     assert "secret or document content" not in response.text
+
+
+def test_request_id_is_generated_returned_and_unique(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _mock_extraction(monkeypatch)
+    first = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+    second = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    first_id = first.headers["X-Request-ID"]
+    second_id = second.headers["X-Request-ID"]
+    UUID(first_id)
+    UUID(second_id)
+    assert first_id != second_id
+    assert "request_id" not in first.json()
+
+
+def test_provider_logs_carry_request_id_and_do_not_log_sensitive_values(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    api_key = "secret-api-key-marker"
+    invoice_value = "private-invoice-value-marker"
+    monkeypatch.setattr(
+        extractor,
+        "get_settings",
+        lambda: Settings(openai_api_key=api_key, gemini_api_key=None),
+    )
+
+    def succeed(*args: object) -> InvoiceExtractionData:
+        return InvoiceExtractionData(buyer_name=invoice_value)
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", succeed)
+    caplog.set_level(logging.INFO)
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    request_id = response.headers["X-Request-ID"]
+    provider_events = [
+        record
+        for record in caplog.records
+        if getattr(record, "event", "").startswith("provider_attempt_")
+    ]
+    assert [record.event for record in provider_events] == [
+        "provider_attempt_started",
+        "provider_attempt_finished",
+    ]
+    assert all(record.request_id == request_id for record in provider_events)
+    assert provider_events[-1].provider == "OpenAI"
+    assert provider_events[-1].model == "gpt-6-luna"
+    assert provider_events[-1].outcome == "success"
+    log_output = "\n".join(JsonLogFormatter().format(record) for record in caplog.records)
+    assert api_key not in log_output
+    assert invoice_value not in log_output
+    assert invoice_value in response.text
+
+
+def test_provider_failure_logs_safe_stack_and_request_outcome(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    private_detail = "private-provider-error-marker"
+    monkeypatch.setattr(
+        extractor,
+        "get_settings",
+        lambda: Settings(openai_api_key="test-key", gemini_api_key=None),
+    )
+
+    def fail(*args: object) -> InvoiceExtractionData:
+        raise RuntimeError(private_detail)
+
+    monkeypatch.setattr(extractor, "_extract_with_openai", fail)
+    caplog.set_level(logging.INFO)
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    request_id = response.headers["X-Request-ID"]
+    failure = next(
+        record
+        for record in caplog.records
+        if getattr(record, "event", "") == "provider_attempt_failed"
+    )
+    outcome = next(
+        record
+        for record in caplog.records
+        if getattr(record, "event", "") == "request_finished"
+    )
+    assert failure.request_id == request_id
+    assert failure.error_type == "RuntimeError"
+    assert failure.stack_trace
+    assert outcome.request_id == request_id
+    assert outcome.http_status == 502
+    assert outcome.outcome == "failure"
+    log_output = "\n".join(JsonLogFormatter().format(record) for record in caplog.records)
+    assert private_detail not in log_output
