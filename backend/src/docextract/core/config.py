@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     max_image_width: int = 10_000
     max_image_height: int = 10_000
     log_level: str = "INFO"
+    provider_pricing_json: str = "{}"
+    provider_pricing_version: str = "unconfigured"
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_ROOT / ".env",

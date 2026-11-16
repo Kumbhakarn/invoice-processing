@@ -6,6 +6,7 @@ import logging
 import time
 import traceback
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import cast
 
 from google import genai
@@ -17,6 +18,7 @@ from docextract.core.config import Settings, get_settings
 from docextract.core.request_context import get_request_id
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.prompt_template import SYSTEM_PROMPT, build_user_prompt
+from docextract.services.usage import CostEstimate, ProviderUsage, calculate_cost, reported_usage
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,30 @@ class ExtractionProviderError(RuntimeError):
     def __init__(self, message: str, category: str = "provider-error") -> None:
         super().__init__(message)
         self.category = category
+
+
+@dataclass(frozen=True)
+class ProviderCallResult:
+    data: InvoiceExtractionData
+    usage: ProviderUsage
+
+
+@dataclass(frozen=True)
+class ProviderAttempt:
+    provider: str
+    model: str
+    duration_ms: float
+    outcome: str
+    usage: ProviderUsage
+    cost: CostEstimate
+    retry_count: int = 0
+    fallback_used: bool = False
+
+
+@dataclass(frozen=True)
+class ExtractionResult:
+    data: InvoiceExtractionData
+    attempts: tuple[ProviderAttempt, ...]
 
 
 def _provider_error_category(error: Exception) -> str:
@@ -60,7 +86,7 @@ def _extract_with_openai(
     mime_type: str,
     filename: str,
     settings: Settings,
-) -> InvoiceExtractionData:
+) -> ProviderCallResult:
     """Use OpenAI structured output parsing to extract the uploaded document."""
     if settings.openai_api_key is None:
         raise ExtractionNotConfiguredError("OPENAI_API_KEY is not configured")
@@ -95,14 +121,14 @@ def _extract_with_openai(
     )
     if response.output_parsed is None:
         raise ValueError("OpenAI returned no parsed extraction data")
-    return response.output_parsed
+    return ProviderCallResult(response.output_parsed, reported_usage(response, "OpenAI"))
 
 
 def _extract_with_gemini(
     file_bytes: bytes,
     mime_type: str,
     settings: Settings,
-) -> InvoiceExtractionData:
+) -> ProviderCallResult:
     """Use Gemini JSON schema output to extract the uploaded document."""
     if settings.gemini_api_key is None:
         raise ExtractionNotConfiguredError("GEMINI_API_KEY is not configured")
@@ -124,17 +150,19 @@ def _extract_with_gemini(
     )
     if response.text is None:
         raise ValueError("Gemini returned no extraction data")
-    return InvoiceExtractionData.model_validate_json(response.text)
+    return ProviderCallResult(
+        InvoiceExtractionData.model_validate_json(response.text), reported_usage(response, "Gemini")
+    )
 
 
-async def extract_document_data(
+async def extract_document_with_usage(
     file_bytes: bytes,
     mime_type: str,
     filename: str,
-) -> InvoiceExtractionData:
+) -> ExtractionResult:
     """Try OpenAI first, then fall back to Gemini on any provider error."""
     settings = get_settings()
-    providers: list[tuple[str, Callable[[], InvoiceExtractionData]]] = []
+    providers: list[tuple[str, Callable[[], ProviderCallResult]]] = []
     if settings.openai_api_key:
         providers.append(
             ("OpenAI", lambda: _extract_with_openai(file_bytes, mime_type, filename, settings))
@@ -148,6 +176,7 @@ async def extract_document_data(
 
     errors: list[str] = []
     categories: list[str] = []
+    attempts: list[ProviderAttempt] = []
     for provider_name, provider_call in providers:
         model_name = settings.openai_model if provider_name == "OpenAI" else settings.gemini_model
         provider_started_at = time.perf_counter()
@@ -163,6 +192,17 @@ async def extract_document_data(
         )
         try:
             result = await asyncio.to_thread(provider_call)
+            if isinstance(result, InvoiceExtractionData):
+                result = ProviderCallResult(result, ProviderUsage())
+            duration_ms = round((time.perf_counter() - provider_started_at) * 1000, 2)
+            cost = calculate_cost(
+                provider_name, model_name, result.usage,
+                settings.provider_pricing_json, settings.provider_pricing_version,
+            )
+            attempts.append(ProviderAttempt(
+                provider_name, model_name, duration_ms, "success", result.usage, cost,
+                fallback_used=bool(attempts),
+            ))
             logger.info(
                 "AI provider attempt completed",
                 extra={
@@ -170,13 +210,31 @@ async def extract_document_data(
                     "request_id": get_request_id(),
                     "provider": provider_name,
                     "model": model_name,
-                    "duration_ms": round((time.perf_counter() - provider_started_at) * 1000, 2),
+                    "duration_ms": duration_ms,
                     "outcome": "success",
+                    "input_tokens": result.usage.input_tokens,
+                    "output_tokens": result.usage.output_tokens,
+                    "total_tokens": result.usage.total_tokens,
+                    "usage_source": result.usage.source,
+                    "cost_usd": str(cost.amount_usd) if cost.amount_usd is not None else None,
+                    "pricing_version": cost.pricing_version,
+                    "fallback_used": bool(attempts[:-1]),
+                    "retry_count": 0,
                 },
             )
-            return result
+            return ExtractionResult(result.data, tuple(attempts))
         except Exception as error:
             category = _provider_error_category(error)
+            duration_ms = round((time.perf_counter() - provider_started_at) * 1000, 2)
+            empty_usage = ProviderUsage()
+            empty_cost = calculate_cost(
+                provider_name, model_name, empty_usage,
+                settings.provider_pricing_json, settings.provider_pricing_version,
+            )
+            attempts.append(ProviderAttempt(
+                provider_name, model_name, duration_ms, "failure", empty_usage, empty_cost,
+                fallback_used=bool(attempts),
+            ))
             logger.warning(
                 "AI provider attempt failed",
                 extra={
@@ -184,11 +242,19 @@ async def extract_document_data(
                     "request_id": get_request_id(),
                     "provider": provider_name,
                     "model": model_name,
-                    "duration_ms": round((time.perf_counter() - provider_started_at) * 1000, 2),
+                    "duration_ms": duration_ms,
                     "outcome": "failure",
                     "error_category": category,
                     "error_type": type(error).__name__,
                     "stack_trace": traceback.format_tb(error.__traceback__),
+                    "input_tokens": None,
+                    "output_tokens": None,
+                    "total_tokens": None,
+                    "usage_source": "unavailable",
+                    "cost_usd": None,
+                    "pricing_version": empty_cost.pricing_version,
+                    "fallback_used": bool(attempts[:-1]),
+                    "retry_count": 0,
                 },
             )
             errors.append(f"{provider_name}: {type(error).__name__}")
@@ -200,3 +266,11 @@ async def extract_document_data(
         "All configured document extraction providers failed: " + "; ".join(errors),
         category,
     )
+
+
+async def extract_document_data(
+    file_bytes: bytes, mime_type: str, filename: str,
+) -> InvoiceExtractionData:
+    """Backward-compatible extraction entry point returning only invoice data."""
+    result = await extract_document_with_usage(file_bytes, mime_type, filename)
+    return result.data

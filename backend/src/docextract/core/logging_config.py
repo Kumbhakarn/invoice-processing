@@ -21,6 +21,14 @@ _EXTRA_FIELDS = (
     "error_category",
     "error_type",
     "stack_trace",
+    "input_tokens",
+    "output_tokens",
+    "total_tokens",
+    "usage_source",
+    "cost_usd",
+    "pricing_version",
+    "fallback_used",
+    "retry_count",
 )
 
 
