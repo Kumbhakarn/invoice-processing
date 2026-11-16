@@ -117,16 +117,37 @@ The top-level fields are:
 
 ### Errors
 
-Errors use FastAPI's standard JSON shape: `{"detail": "..."}`.
+Errors use a consistent JSON shape. The `code` is stable for client handling; the
+`message` is safe for display and does not include provider exception details.
 
-| Status | Meaning |
-| --- | --- |
-| `400 Bad Request` | Empty file or invalid/incomplete PDF, JPEG, or PNG content. |
-| `413 Content Too Large` | File exceeds `MAX_UPLOAD_SIZE_BYTES`, a PDF exceeds `MAX_PDF_PAGES`, or an image exceeds `MAX_IMAGE_WIDTH` or `MAX_IMAGE_HEIGHT`. |
-| `415 Unsupported Media Type` | Unsupported format/extension, or extension/MIME type does not match file content. |
-| `422 Unprocessable Entity` | Required multipart field is missing or the request cannot be parsed. |
-| `502 Bad Gateway` | All configured extraction providers failed. |
-| `503 Service Unavailable` | No extraction provider is configured. |
+```json
+{
+  "error": {
+    "code": "FILE_TOO_LARGE",
+    "message": "Uploaded file exceeds the maximum allowed size."
+  }
+}
+```
+
+| Status | Error code | Meaning |
+| --- | --- | --- |
+| `400 Bad Request` | `EMPTY_FILE` | Uploaded file is empty. |
+| `400 Bad Request` | `INVALID_DOCUMENT` | Supported document content is malformed or incomplete. |
+| `413 Content Too Large` | `FILE_TOO_LARGE` | File exceeds `MAX_UPLOAD_SIZE_BYTES`. |
+| `413 Content Too Large` | `PDF_PAGE_LIMIT_EXCEEDED` | PDF exceeds `MAX_PDF_PAGES`. |
+| `413 Content Too Large` | `IMAGE_DIMENSION_LIMIT_EXCEEDED` | Image exceeds `MAX_IMAGE_WIDTH` or `MAX_IMAGE_HEIGHT`. |
+| `415 Unsupported Media Type` | `UNSUPPORTED_FORMAT` | Unsupported format/extension or extension/MIME type does not match file content. |
+| `422 Unprocessable Entity` | `INVALID_REQUEST` | Required multipart field is missing or the request cannot be parsed. |
+| `502 Bad Gateway` | `PROVIDER_AUTHENTICATION_FAILURE` | An AI provider rejected its configured credentials and extraction failed. |
+| `502 Bad Gateway` | `INVALID_AI_RESPONSE` | Configured providers returned empty or invalid structured data. |
+| `502 Bad Gateway` | `PROVIDER_FAILURE` | Configured providers failed for another upstream reason. |
+| `503 Service Unavailable` | `MISSING_PROVIDER_CONFIGURATION` | No AI extraction provider is configured. |
+| `503 Service Unavailable` | `PROVIDER_RATE_LIMIT` | Configured providers could not process the request due to rate limiting. |
+| `504 Gateway Timeout` | `PROVIDER_TIMEOUT` | Configured provider requests timed out. |
+| `500 Internal Server Error` | `INTERNAL_SERVER_ERROR` | An unexpected server error occurred. |
+
+This error envelope replaces the previous FastAPI `{"detail": "..."}` response,
+so clients that read `detail` should migrate to `error.code` and `error.message`.
 
 ## Compatibility notes
 

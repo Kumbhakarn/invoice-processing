@@ -7,9 +7,10 @@ import zlib
 from pathlib import PurePath
 from typing import Annotated
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, UploadFile
 from pypdf import PdfReader
 
+from docextract.api.errors import ApiError
 from docextract.core.config import get_settings
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.extractor import (
@@ -32,26 +33,17 @@ def _detect_mime_type(file_bytes: bytes) -> str | None:
     """Recognize supported formats and reject files with invalid basic structure."""
     if file_bytes.startswith(b"%PDF-"):
         if b"%%EOF" not in file_bytes[-1024:]:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The uploaded PDF is invalid or incomplete.",
-            )
+            raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
         return "application/pdf"
 
     if file_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
         if not _is_valid_png(file_bytes):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The uploaded PNG image is invalid or incomplete.",
-            )
+            raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
         return "image/png"
 
     if file_bytes.startswith(b"\xff\xd8"):
         if len(file_bytes) < 12 or not file_bytes.endswith(b"\xff\xd9"):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The uploaded JPEG image is invalid or incomplete.",
-            )
+            raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
         return "image/jpeg"
 
     return None
@@ -169,37 +161,19 @@ def _check_document_resources(file_bytes: bytes, mime_type: str) -> None:
         try:
             page_count = len(PdfReader(io.BytesIO(file_bytes), strict=True).pages)
         except Exception as error:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The uploaded PDF is malformed or cannot be read.",
-            ) from error
+            raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.") from error
         if page_count > settings.max_pdf_pages:
-            raise HTTPException(
-                status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-                detail=f"PDF exceeds the maximum of {settings.max_pdf_pages} pages.",
-            )
+            raise ApiError(413, "PDF_PAGE_LIMIT_EXCEEDED", "PDF page limit exceeded.")
         return
 
     dimensions = _get_image_dimensions(file_bytes, mime_type)
     if dimensions is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The uploaded image dimensions could not be read.",
-        )
+        raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
     width, height = dimensions
     if width > settings.max_image_width or height > settings.max_image_height:
-        raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-            detail=(
-                "Image dimensions exceed the maximum of "
-                f"{settings.max_image_width} by {settings.max_image_height} pixels."
-            ),
-        )
+        raise ApiError(413, "IMAGE_DIMENSION_LIMIT_EXCEEDED", "Image dimension limit exceeded.")
     if mime_type == "image/png" and not _is_valid_png_image_data(file_bytes):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="The uploaded PNG image data is invalid or incomplete.",
-        )
+        raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
 
 
 @router.post("/extract", response_model=InvoiceExtractionData)
@@ -214,15 +188,9 @@ async def extract_invoice(
     max_size = get_settings().max_upload_size_bytes
     file_bytes = await file.read(max_size + 1)
     if len(file_bytes) > max_size:
-        raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-            detail="Uploaded file exceeds the maximum allowed size.",
-        )
+        raise ApiError(413, "FILE_TOO_LARGE", "Uploaded file exceeds the maximum allowed size.")
     if not file_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded file is empty.",
-        )
+        raise ApiError(400, "EMPTY_FILE", "Uploaded file is empty.")
 
     mime_type = _detect_mime_type(file_bytes)
     if mime_type is None:
@@ -230,46 +198,44 @@ async def extract_invoice(
             extension in _EXTENSION_MIME_TYPES
             or declared_mime_type in _EXTENSION_MIME_TYPES.values()
         ):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The uploaded file does not contain valid content for its declared type.",
-            )
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Unsupported file format. Upload a PDF, JPEG, or PNG file.",
-        )
+            raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
+        raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
     if extension and extension not in _EXTENSION_MIME_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Unsupported file extension. Upload a PDF, JPEG, or PNG file.",
-        )
+        raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
     if extension and _EXTENSION_MIME_TYPES[extension] != mime_type:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="The filename extension does not match the uploaded file content.",
-        )
+        raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
     if declared_mime_type not in {mime_type, "application/octet-stream"}:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="The declared MIME type does not match the uploaded file content.",
-        )
+        raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
     if not extension and declared_mime_type != mime_type:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Unsupported file type. Upload a PDF, JPEG, or PNG file.",
-        )
+        raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
 
     _check_document_resources(file_bytes, mime_type)
 
     try:
         return await extract_document_data(file_bytes, mime_type, filename)
     except ExtractionNotConfiguredError as error:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=str(error),
+        raise ApiError(
+            503,
+            "MISSING_PROVIDER_CONFIGURATION",
+            "No AI extraction provider is configured.",
         ) from error
     except ExtractionProviderError as error:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Invoice extraction failed with all configured AI providers.",
-        ) from error
+        provider_errors = {
+            "authentication": (
+                502,
+                "PROVIDER_AUTHENTICATION_FAILURE",
+                "AI provider authentication failed.",
+            ),
+            "rate-limit": (503, "PROVIDER_RATE_LIMIT", "AI provider rate limit reached."),
+            "timeout": (504, "PROVIDER_TIMEOUT", "AI provider request timed out."),
+            "invalid-response": (
+                502,
+                "INVALID_AI_RESPONSE",
+                "AI provider returned an invalid response.",
+            ),
+        }
+        status_code, code, message = provider_errors.get(
+            error.category,
+            (502, "PROVIDER_FAILURE", "Invoice extraction failed with configured AI providers."),
+        )
+        raise ApiError(status_code, code, message) from error

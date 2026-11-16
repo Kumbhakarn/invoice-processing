@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 
+from docextract.api.errors import register_error_handlers
 from docextract.api.routes.extract import router as extract_router
 from docextract.api.routes.health import router as health_router
 
@@ -15,4 +16,5 @@ def create_app() -> FastAPI:
     )
     application.include_router(health_router, prefix="/api")
     application.include_router(extract_router, prefix="/api")
+    register_error_handlers(application)
     return application
