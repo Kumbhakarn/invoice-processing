@@ -11,6 +11,7 @@ from starlette.responses import Response
 from docextract.api.errors import register_error_handlers
 from docextract.api.routes.extract import router as extract_router
 from docextract.api.routes.health import router as health_router
+from docextract.api.routes.validate import router as validate_router
 from docextract.core.config import get_settings
 from docextract.core.logging_config import configure_logging
 from docextract.core.request_context import reset_request_id, set_request_id
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
     )
     application.include_router(health_router, prefix="/api")
     application.include_router(extract_router, prefix="/api")
+    application.include_router(validate_router, prefix="/api")
     register_error_handlers(application)
 
     @application.middleware("http")

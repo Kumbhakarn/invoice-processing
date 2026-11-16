@@ -97,6 +97,37 @@ Returns an `InvoiceExtractionData` JSON object. Fields not found in the document
 | `rate` | number |
 | `amount` | number |
 
+## `POST /api/validate`
+
+Checks business consistency for an already extracted `InvoiceExtractionData` JSON object. It does not call an AI provider, alter supplied values, or turn validation findings into extraction errors. Validation findings are returned separately from the invoice data.
+
+### Request
+
+The request body uses the same nullable fields and types as the `POST /api/extract` success response.
+
+### Success — `200 OK`
+
+```json
+{
+  "status": "needs_review",
+  "issues": [
+    {
+      "rule_id": "line_item.amount_reconciliation",
+      "field": "line_items[0].amount",
+      "line_item_index": 1,
+      "severity": "warning",
+      "message": "Quantity multiplied by rate differs from the line amount beyond currency rounding tolerance; discounts, conversions, or other adjustments may explain the difference."
+    }
+  ]
+}
+```
+
+`status` is `valid` when no findings exist, `needs_review` when findings are warnings only, and `invalid` when at least one error is reported. Validation errors are business findings in this `200` response; they do not indicate that extraction or the HTTP request failed. Line item indexes are one-based.
+
+Current rules check required-field presence, ISO `YYYY-MM-DD` date shape, three-letter uppercase currency-code shape, non-negative net/gross weights and quantities/rates, gross weight not below net weight, line-item description/unit presence, and quantity × rate versus line amount using currency minor-unit rounding tolerance. A mismatch is a warning because discounts, conversions, and adjustments are not represented by the current schema. Currency codes are not verified against a live ISO registry.
+
+The current extraction schema has no invoice-level numeric total, subtotal, tax, discount, or per-line currency fields. Therefore amount-in-words reconciliation, invoice totals reconciliation, tax/additional-charge reconciliation, and cross-currency line-total checks are not performed.
+
 The top-level fields are:
 
 | Field | Type |
