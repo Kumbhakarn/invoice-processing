@@ -44,6 +44,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = ["slow: runs the bundled real OCR model"]
 
 [tool.mypy]
 python_version = "3.12"

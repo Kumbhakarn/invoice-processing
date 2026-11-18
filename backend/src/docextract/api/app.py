@@ -9,6 +9,7 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import Response
 
 from docextract.api.errors import register_error_handlers
+from docextract.api.routes.evidence import router as evidence_router
 from docextract.api.routes.extract import router as extract_router
 from docextract.api.routes.health import router as health_router
 from docextract.api.routes.validate import router as validate_router
@@ -29,6 +30,7 @@ def create_app() -> FastAPI:
     )
     application.include_router(health_router, prefix="/api")
     application.include_router(extract_router, prefix="/api")
+    application.include_router(evidence_router, prefix="/api")
     application.include_router(validate_router, prefix="/api")
     register_error_handlers(application)
 

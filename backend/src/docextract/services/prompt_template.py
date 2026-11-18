@@ -44,3 +44,16 @@ def build_user_prompt() -> str:
     """Add the canonical Pydantic JSON schema to the extraction instructions."""
     schema_json = json.dumps(InvoiceExtractionData.model_json_schema(), indent=2)
     return USER_PROMPT.format(invoice_json_schema=schema_json)
+
+
+def build_evidence_user_prompt() -> str:
+    """Ask for printed field text in the evidence-only extraction response."""
+    return (
+        build_user_prompt()
+        + "\n\nFor evidence processing only, also provide raw_fields as a list of objects "
+        '{"field": "field.path", "raw": "exact printed text"}. Include an entry only '
+        "when the printed form differs from the normalized field value. Use zero-based "
+        "paths such as line_items[0].quantity. Do not return page numbers, bounding boxes, "
+        "confidence values, or any other evidence metadata. Copy raw text exactly as printed. "
+        "The document is the only source of truth."
+    )

@@ -16,6 +16,7 @@ from docextract.schemas_evidence import (
     FieldEvidence,
     FieldSource,
     NormalizedBox,
+    RawFieldText,
     SourceCandidate,
 )
 from docextract.services.evidence.types import TextBox
@@ -168,6 +169,32 @@ def match_invoice_fields(
     return evidence
 
 
+def ground_raw_fields(
+    data: InvoiceExtractionData,
+    raw_fields: tuple[RawFieldText, ...],
+    text_boxes: list[TextBox],
+) -> dict[str, str]:
+    """Keep provider raw strings only when a high-quality document match exists."""
+    lines = _group_lines(text_boxes)
+    values = _field_values(data)
+    document_text = _source_text(" ".join(line.text for line in lines))
+    grounded: dict[str, str] = {}
+    for raw_field in raw_fields:
+        value = values.get(raw_field.field)
+        raw = raw_field.raw.strip()
+        if value is None or not raw or str(value).strip() == raw:
+            continue
+        if raw_field.field in grounded:
+            continue
+        if _source_text(raw) in document_text:
+            grounded[raw_field.field] = raw
+    return grounded
+
+
+def _source_text(value: str) -> str:
+    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", value).casefold()).strip()
+
+
 def _field_values(data: InvoiceExtractionData) -> dict[str, object]:
     values: dict[str, object] = {}
     for field_name in InvoiceExtractionData.model_fields:
@@ -189,8 +216,7 @@ def _group_lines(boxes: list[TextBox]) -> list[_Line]:
         if (
             groups
             and groups[-1][0].page == box.page
-            and abs(_center_y(groups[-1][0]) - center)
-            <= max(0.006, box.bbox[3] - box.bbox[1])
+            and abs(_center_y(groups[-1][0]) - center) <= max(0.006, box.bbox[3] - box.bbox[1])
         ):
             groups[-1].append(box)
         else:
@@ -222,9 +248,7 @@ def _find_candidates(
     target_tokens = target.split()
     min_words = max(1, len(target_tokens) - 1)
     max_words = (
-        max(3, len(target_tokens) + 1)
-        if field_name == "invoice_date"
-        else len(target_tokens) + 1
+        max(3, len(target_tokens) + 1) if field_name == "invoice_date" else len(target_tokens) + 1
     )
     candidates: list[_Candidate] = []
     for start in range(len(lines)):
@@ -232,8 +256,7 @@ def _find_candidates(
         for end in range(start, min(len(lines), start + 5)):
             line = lines[end]
             if segment and (
-                line.page != segment[-1].page
-                or line.y_center - segment[-1].y_center > 0.055
+                line.page != segment[-1].page or line.y_center - segment[-1].y_center > 0.055
             ):
                 break
             segment.append(line)
@@ -247,8 +270,7 @@ def _find_candidates(
                     )
                 )
             elif len(segment) > 1 and all(
-                len(segment_line.boxes) == 1
-                and segment_line.boxes[0].source == "ocr"
+                len(segment_line.boxes) == 1 and segment_line.boxes[0].source == "ocr"
                 for segment_line in segment
             ):
                 actual_text = " ".join(segment_line.text for segment_line in segment)
@@ -278,9 +300,7 @@ def _find_candidates(
     return _prune_overlapping(_deduplicate(candidates))
 
 
-def _word_windows(
-    lines: list[_Line], minimum: int, maximum: int
-) -> list[tuple[TextBox, ...]]:
+def _word_windows(lines: list[_Line], minimum: int, maximum: int) -> list[tuple[TextBox, ...]]:
     words = [box for line in lines for box in line.boxes]
     return [
         tuple(words[start : start + width])
@@ -499,10 +519,7 @@ def _unique_line_item_anchors(
         if index is None or not candidates:
             continue
         ranked = sorted(candidates, key=lambda item: item.ranked_score, reverse=True)
-        if (
-            len(ranked) == 1
-            or ranked[0].ranked_score - ranked[1].ranked_score >= ambiguity_margin
-        ):
+        if len(ranked) == 1 or ranked[0].ranked_score - ranked[1].ranked_score >= ambiguity_margin:
             anchors[index] = ranked[0]
     return anchors
 

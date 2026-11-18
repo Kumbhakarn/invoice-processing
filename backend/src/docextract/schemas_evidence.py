@@ -25,8 +25,7 @@ class SourceCandidate(BaseModel):
     @model_validator(mode="after")
     def validate_boxes(self) -> "SourceCandidate":
         if not self.boxes or any(
-            not (0 <= x0 <= x1 <= 1 and 0 <= y0 <= y1 <= 1)
-            for x0, y0, x1, y1 in self.boxes
+            not (0 <= x0 <= x1 <= 1 and 0 <= y0 <= y1 <= 1) for x0, y0, x1, y1 in self.boxes
         ):
             raise ValueError("candidate requires normalized, ordered boxes")
         return self
@@ -48,16 +47,10 @@ class FieldSource(BaseModel):
 
     @model_validator(mode="after")
     def validate_location_state(self) -> "FieldSource":
-        if any(
-            not (0 <= x0 <= x1 <= 1 and 0 <= y0 <= y1 <= 1)
-            for x0, y0, x1, y1 in self.boxes
-        ):
+        if any(not (0 <= x0 <= x1 <= 1 and 0 <= y0 <= y1 <= 1) for x0, y0, x1, y1 in self.boxes):
             raise ValueError("source boxes must be normalized and ordered")
         if self.status == "located" and (
-            self.page is None
-            or not self.boxes
-            or self.reason is not None
-            or self.match_count < 1
+            self.page is None or not self.boxes or self.reason is not None or self.match_count < 1
         ):
             raise ValueError("located source requires a page, boxes, a match, and no reason")
         if self.status == "ambiguous" and (
@@ -139,3 +132,21 @@ class EvidenceExtractionResponse(BaseModel):
     fields: dict[str, MappedField]
     pages: list[DocumentPage]
     meta: EvidenceMetadata
+
+
+class RawFieldText(BaseModel):
+    """Provider-returned printed text for one extracted field, before grounding."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    field: str
+    raw: str
+
+
+class EvidenceProviderResponse(BaseModel):
+    """Private structured result used only by the evidence extraction pipeline."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    data: InvoiceExtractionData
+    raw_fields: list[RawFieldText]

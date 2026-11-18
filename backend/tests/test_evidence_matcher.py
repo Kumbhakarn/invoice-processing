@@ -2,7 +2,8 @@
 
 from docextract.core.config import Settings
 from docextract.schemas import InvoiceExtractionData, InvoiceLineItem
-from docextract.services.evidence.matcher import match_invoice_fields
+from docextract.schemas_evidence import RawFieldText
+from docextract.services.evidence.matcher import ground_raw_fields, match_invoice_fields
 from docextract.services.evidence.types import TextBox
 
 
@@ -191,3 +192,37 @@ def test_unavailable_reasons_cover_not_found_low_quality_and_ocr_failure() -> No
     assert not_found.reason == "not_found"
     assert low_quality.reason == "low_quality"
     assert ocr_failed.reason == "ocr_failed"
+
+
+def test_raw_text_is_retained_only_when_present_in_actual_page_text() -> None:
+    data = InvoiceExtractionData(buyer_address="Example Street, NY")
+    boxes = [
+        _box("Example", 0.1, 0.1),
+        _box("Street,", 0.2, 0.1),
+        _box("New", 0.3, 0.1),
+        _box("York", 0.4, 0.1),
+    ]
+
+    result = ground_raw_fields(
+        data,
+        (
+            RawFieldText(field="buyer_address", raw="Example Street, New York"),
+            RawFieldText(field="buyer_name", raw="Invented Buyer"),
+        ),
+        boxes,
+    )
+
+    assert result == {"buyer_address": "Example Street, New York"}
+
+
+def test_raw_text_equal_to_extracted_value_is_omitted() -> None:
+    data = InvoiceExtractionData(buyer_address="Example Street, New York")
+    boxes = [_box("Example Street, New York", 0.1, 0.1)]
+
+    result = ground_raw_fields(
+        data,
+        (RawFieldText(field="buyer_address", raw="Example Street, New York"),),
+        boxes,
+    )
+
+    assert result == {}

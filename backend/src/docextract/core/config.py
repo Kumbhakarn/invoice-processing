@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     evidence_ocr_model_dir: Path | None = None
     evidence_match_threshold: Annotated[float, Field(gt=0, le=1)] = 0.82
     evidence_match_ambiguity_margin: Annotated[float, Field(ge=0, le=1)] = 0.05
+    evidence_confidence_weights_json: str = (
+        '{"grounding":0.35,"match_quality":0.25,"ocr_confidence":0.15,'
+        '"provider_logprob":0.10,"validation":0.15}'
+    )
     log_level: str = "INFO"
     provider_pricing_json: str = "{}"
     provider_pricing_version: str = "unconfigured"
