@@ -2,7 +2,9 @@
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[3]
@@ -19,6 +21,8 @@ class Settings(BaseSettings):
     max_pdf_pages: int = 50
     max_image_width: int = 10_000
     max_image_height: int = 10_000
+    evidence_render_dpi: Annotated[int, Field(ge=36, le=600)] = 200
+    evidence_text_layer_min_chars: Annotated[int, Field(ge=1)] = 20
     log_level: str = "INFO"
     provider_pricing_json: str = "{}"
     provider_pricing_version: str = "unconfigured"
