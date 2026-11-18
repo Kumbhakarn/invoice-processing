@@ -97,6 +97,90 @@ Returns an `InvoiceExtractionData` JSON object. Fields not found in the document
 | `rate` | number |
 | `amount` | number |
 
+## `POST /api/extract/evidence` — interim endpoint contract
+
+This is the **interim Feature 12 endpoint contract**. It is not registered in the API yet; implementation is scheduled for a later Feature 12 step. It accepts one document as `multipart/form-data`, like `/api/extract`, and returns the original extraction data plus field-level evidence. The existing `/api/extract` endpoint and response remain unchanged. This interim route is intended to be replaced by the future document resource contract; clients should not treat it as the long-term evidence-storage API.
+
+The evidence endpoint accepts PDF, JPEG, PNG, WEBP, and TIFF documents. A multipage TIFF contributes one page per frame. For PDFs, each page is processed independently because a document may mix text-layer and scanned pages.
+
+### Planned success — `200 OK`
+
+```json
+{
+  "data": {
+    "invoice_number": "INV-1001",
+    "line_items": [
+      {
+        "description_of_goods": "Example goods",
+        "quantity": 10
+      }
+    ]
+  },
+  "fields": {
+    "invoice_number": {
+      "value": "INV-1001",
+      "raw": null,
+      "confidence": 0.94,
+      "source": {
+        "page": 1,
+        "boxes": [[0.12, 0.08, 0.31, 0.10]],
+        "status": "located",
+        "reason": null,
+        "match_count": 1,
+        "candidates": [],
+        "evidence_text": "Invoice No: INV-1001"
+      },
+      "edited": false
+    },
+    "line_items[0].quantity": {
+      "value": 10,
+      "raw": null,
+      "confidence": 0.88,
+      "source": {
+        "page": 1,
+        "boxes": [[0.71, 0.42, 0.75, 0.44]],
+        "status": "located",
+        "reason": null,
+        "match_count": 1,
+        "candidates": [],
+        "evidence_text": "10"
+      },
+      "edited": false
+    }
+  },
+  "pages": [{"page": 1, "width": 2550, "height": 3300}],
+  "meta": {
+    "timings_ms": {
+      "validation": 2.1,
+      "text_layer": 8.4,
+      "ocr": 0,
+      "llm": 620.0,
+      "matching": 4.5,
+      "total": 640.0
+    },
+    "provider_usage": [
+      {
+        "provider": "OpenAI",
+        "model": "configured-model",
+        "input_tokens": 720,
+        "output_tokens": 180,
+        "reasoning_tokens": 24
+      }
+    ]
+  }
+}
+```
+
+The `data` block above is abbreviated for readability. A response contains the complete `InvoiceExtractionData` schema, with nulls for values not extracted. `fields` is a flat map containing one entry for each top-level scalar field and each line-item scalar field, including null-valued fields; line-item paths use zero-based array indexes. It does not contain a separate wrapper for the `line_items` array itself. Each field entry has `value`, `raw`, `confidence`, `source`, and `edited`. Values are copied from `data`; the mapper does not normalize or replace them. `raw` is the printed form only when it differs and has been grounded in document text. The model is not asked to produce boxes or confidence. `edited` is false for extraction output and is reserved for later edited document fields.
+
+All page numbers are **1-based**. `pages` lists every document page in order. `width` and `height` are the pixel dimensions used for highlighting: PDF pages are rendered at the configured DPI, and image dimensions are measured after orientation correction. Bounding boxes are arrays `[x0, y0, x1, y1]`, normalized to `[0, 1]` relative to that page, with a top-left origin. Multiple boxes represent multi-line values. Estimated sub-line boxes are permitted for values located inside OCR line boxes and must be identified as estimates in implementation metadata or evidence diagnostics.
+
+`source.page` is null and `source.boxes` is empty when no single source is selected. `source.status` is `located`, `ambiguous`, or `unavailable`. `match_count` reports the candidate count; `candidates` contains every possible page/box and match score when disambiguation remains unresolved. Unavailable evidence uses one of `not_found`, `ambiguous`, `ocr_failed`, or `low_quality`. Evidence text is a quote from the document text layer or OCR output, not a claim that the extracted value is verified.
+
+`confidence` is a heuristic score from 0 to 1, not a calibrated probability and never the model's self-reported confidence. It combines document grounding, match quality, OCR confidence where applicable, field-aligned provider logprobs when available, and applicable validation checks. Weights are configurable; the score is uncalibrated and should be checked against real invoices before being used for decisions.
+
+`meta.timings_ms` reports validation, text-layer extraction, OCR, LLM, matching, and total processing time. `provider_usage` reports provider attempts' input, output, and reasoning tokens when returned by the provider; unavailable counts are null.
+
 ## `POST /api/validate`
 
 Checks business consistency for an already extracted `InvoiceExtractionData` JSON object. It does not call an AI provider, alter supplied values, or turn validation findings into extraction errors. Validation findings are returned separately from the invoice data.
