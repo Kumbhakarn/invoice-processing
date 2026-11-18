@@ -20,6 +20,7 @@ class SourceCandidate(BaseModel):
     boxes: list[NormalizedBox]
     match_score: float = Field(ge=0, le=1)
     evidence_text: str | None = None
+    estimated: bool = False
 
     @model_validator(mode="after")
     def validate_boxes(self) -> "SourceCandidate":
@@ -43,6 +44,7 @@ class FieldSource(BaseModel):
     match_count: int = Field(default=0, ge=0)
     candidates: list[SourceCandidate] = Field(default_factory=list)
     evidence_text: str | None = None
+    estimated: bool = False
 
     @model_validator(mode="after")
     def validate_location_state(self) -> "FieldSource":

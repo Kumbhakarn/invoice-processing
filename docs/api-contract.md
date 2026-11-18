@@ -124,6 +124,7 @@ The evidence endpoint accepts PDF, JPEG, PNG, WEBP, and TIFF documents. A multip
       "source": {
         "page": 1,
         "boxes": [[0.12, 0.08, 0.31, 0.10]],
+        "estimated": false,
         "status": "located",
         "reason": null,
         "match_count": 1,
@@ -139,6 +140,7 @@ The evidence endpoint accepts PDF, JPEG, PNG, WEBP, and TIFF documents. A multip
       "source": {
         "page": 1,
         "boxes": [[0.71, 0.42, 0.75, 0.44]],
+        "estimated": false,
         "status": "located",
         "reason": null,
         "match_count": 1,
@@ -173,7 +175,7 @@ The evidence endpoint accepts PDF, JPEG, PNG, WEBP, and TIFF documents. A multip
 
 The `data` block above is abbreviated for readability. A response contains the complete `InvoiceExtractionData` schema, with nulls for values not extracted. `fields` is a flat map containing one entry for each top-level scalar field and each line-item scalar field, including null-valued fields; line-item paths use zero-based array indexes. It does not contain a separate wrapper for the `line_items` array itself. Each field entry has `value`, `raw`, `confidence`, `source`, and `edited`. Values are copied from `data`; the mapper does not normalize or replace them. `raw` is the printed form only when it differs and has been grounded in document text. The model is not asked to produce boxes or confidence. `edited` is false for extraction output and is reserved for later edited document fields.
 
-All page numbers are **1-based**. `pages` lists every document page in order. `width` and `height` are the pixel dimensions used for highlighting: PDF pages are rendered at the configured DPI, and image dimensions are measured after orientation correction. Bounding boxes are arrays `[x0, y0, x1, y1]`, normalized to `[0, 1]` relative to that page, with a top-left origin. Multiple boxes represent multi-line values. Estimated sub-line boxes are permitted for values located inside OCR line boxes and must be identified as estimates in implementation metadata or evidence diagnostics.
+All page numbers are **1-based**. `pages` lists every document page in order. `width` and `height` are the pixel dimensions used for highlighting: PDF pages are rendered at the configured DPI, and image dimensions are measured after orientation correction. Bounding boxes are arrays `[x0, y0, x1, y1]`, normalized to `[0, 1]` relative to that page, with a top-left origin. Multiple boxes represent multi-line values. `source.estimated` is true when a box was estimated from character proportions inside a larger OCR line box; otherwise it is false. Candidate entries carry the same `estimated` flag for their boxes.
 
 `source.page` is null and `source.boxes` is empty when no single source is selected. `source.status` is `located`, `ambiguous`, or `unavailable`. `match_count` reports the candidate count; `candidates` contains every possible page/box and match score when disambiguation remains unresolved. Unavailable evidence uses one of `not_found`, `ambiguous`, `ocr_failed`, or `low_quality`. Evidence text is a quote from the document text layer or OCR output, not a claim that the extracted value is verified.
 
