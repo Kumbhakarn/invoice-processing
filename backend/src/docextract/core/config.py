@@ -2,7 +2,9 @@
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated, Literal
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[3]
@@ -19,6 +21,18 @@ class Settings(BaseSettings):
     max_pdf_pages: int = 50
     max_image_width: int = 10_000
     max_image_height: int = 10_000
+    evidence_render_dpi: Annotated[int, Field(ge=36, le=600)] = 200
+    evidence_text_layer_min_chars: Annotated[int, Field(ge=1)] = 20
+    evidence_ocr_engine: Literal["rapidocr", "paddleocr"] = "rapidocr"
+    evidence_ocr_workers: Annotated[int, Field(ge=1, le=8)] = 2
+    evidence_ocr_timeout_seconds: Annotated[float, Field(gt=0, le=300)] = 30
+    evidence_ocr_model_dir: Path | None = None
+    evidence_match_threshold: Annotated[float, Field(gt=0, le=1)] = 0.82
+    evidence_match_ambiguity_margin: Annotated[float, Field(ge=0, le=1)] = 0.05
+    evidence_confidence_weights_json: str = (
+        '{"grounding":0.35,"match_quality":0.25,"ocr_confidence":0.15,'
+        '"provider_logprob":0.10,"validation":0.15}'
+    )
     log_level: str = "INFO"
     provider_pricing_json: str = "{}"
     provider_pricing_version: str = "unconfigured"

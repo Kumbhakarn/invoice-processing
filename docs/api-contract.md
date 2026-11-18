@@ -97,6 +97,98 @@ Returns an `InvoiceExtractionData` JSON object. Fields not found in the document
 | `rate` | number |
 | `amount` | number |
 
+## `POST /api/extract/evidence` — interim endpoint contract
+
+This is the **interim Feature 12 endpoint contract**. `POST /api/extract/evidence` is implemented for immediate field-level highlighting while the future document resource API is developed. It accepts one document as `multipart/form-data`, like `/api/extract`, and returns the original extraction data plus field-level evidence. The existing `/api/extract` endpoint and response remain unchanged. This interim route is intended to be replaced by the future document resource contract; clients should not treat it as the long-term evidence-storage API.
+
+The evidence endpoint accepts PDF, JPEG, PNG, WEBP, and TIFF documents. A multipage TIFF contributes one page per frame. For PDFs, each page is processed independently because a document may mix text-layer and scanned pages.
+
+### Success — `200 OK`
+
+```json
+{
+  "data": {
+    "invoice_number": "INV-1001",
+    "line_items": [
+      {
+        "description_of_goods": "Example goods",
+        "quantity": 10
+      }
+    ]
+  },
+  "fields": {
+    "invoice_number": {
+      "value": "INV-1001",
+      "raw": null,
+      "confidence": 0.94,
+      "source": {
+        "page": 1,
+        "boxes": [[0.12, 0.08, 0.31, 0.10]],
+        "estimated": false,
+        "status": "located",
+        "reason": null,
+        "match_count": 1,
+        "candidates": [],
+        "evidence_text": "Invoice No: INV-1001"
+      },
+      "edited": false
+    },
+    "line_items[0].quantity": {
+      "value": 10,
+      "raw": null,
+      "confidence": 0.88,
+      "source": {
+        "page": 1,
+        "boxes": [[0.71, 0.42, 0.75, 0.44]],
+        "estimated": false,
+        "status": "located",
+        "reason": null,
+        "match_count": 1,
+        "candidates": [],
+        "evidence_text": "10"
+      },
+      "edited": false
+    }
+  },
+  "pages": [{"page": 1, "width": 2550, "height": 3300}],
+  "meta": {
+    "timings_ms": {
+      "validation": 2.1,
+      "text_layer": 8.4,
+      "ocr": 0,
+      "llm": 620.0,
+      "matching": 4.5,
+      "total": 640.0
+    },
+    "provider_usage": [
+      {
+        "provider": "OpenAI",
+        "model": "configured-model",
+        "input_tokens": 720,
+        "output_tokens": 180,
+        "reasoning_tokens": 24
+      }
+    ]
+  }
+}
+```
+
+The `data` block above is abbreviated for readability. A response contains the complete `InvoiceExtractionData` schema, with nulls for values not extracted. `fields` is a flat map containing one entry for each top-level scalar field and each line-item scalar field, including null-valued fields; line-item paths use zero-based array indexes. It does not contain a separate wrapper for the `line_items` array itself. Each field entry has `value`, `raw`, `confidence`, `source`, and `edited`. Values are copied from `data`; the mapper does not normalize or replace them. `raw` is the printed form only when it differs and has been grounded in document text. The model is not asked to produce boxes or confidence. `edited` is false for extraction output and is reserved for later edited document fields.
+
+All page numbers are **1-based**. `pages` lists every document page in order. `width` and `height` are the pixel dimensions used for highlighting: PDF pages are rendered at the configured DPI, and image dimensions are measured after orientation correction. Bounding boxes are arrays `[x0, y0, x1, y1]`, normalized to `[0, 1]` relative to that page, with a top-left origin. Multiple boxes represent multi-line values. `source.estimated` is true when a box was estimated from character proportions inside a larger OCR line box; otherwise it is false. Candidate entries carry the same `estimated` flag for their boxes.
+
+`source.page` is null and `source.boxes` is empty when no single source is selected. `source.status` is `located`, `ambiguous`, or `unavailable`. `match_count` reports the candidate count; `candidates` contains every possible page/box and match score when disambiguation remains unresolved. Unavailable evidence uses one of `not_found`, `ambiguous`, `ocr_failed`, or `low_quality`. Evidence text is a quote from the document text layer or OCR output, not a claim that the extracted value is verified.
+
+`confidence` is a heuristic score from 0 to 1, not a calibrated probability and never the model's self-reported confidence. It combines document grounding, match quality, OCR confidence where applicable, field-aligned provider logprobs when available, and applicable validation checks. Weights are configurable; the score is uncalibrated and should be checked against real invoices before being used for decisions.
+
+`meta.timings_ms` reports validation, text-layer extraction, OCR, LLM, matching, and total processing time. `provider_usage` reports provider attempts' input, output, and reasoning tokens when returned by the provider; unavailable counts are null.
+
+The confidence weights are configured by `EVIDENCE_CONFIDENCE_WEIGHTS_JSON`; defaults are grounding 0.35, match quality 0.25, OCR confidence 0.15, provider logprob 0.10, and validation 0.15. Missing components are omitted and remaining weights renormalized. These weights are uncalibrated heuristics, not probabilities. Raw printed text is returned only when it differs from the normalized extraction and an exact normalized occurrence is found in document text-layer or OCR output.
+
+The interim evidence route also accepts WEBP and TIFF. OCR runs in a bounded worker pool using `EVIDENCE_OCR_WORKERS`, `EVIDENCE_OCR_TIMEOUT_SECONDS`, `EVIDENCE_RENDER_DPI`, and the configured `EVIDENCE_OCR_ENGINE`. The default RapidOCR ONNX CPU package includes its models, so it needs no first-run model download. PaddleOCR is an optional alternative selected through configuration and requires locally preinstalled models. The CPU container recipe is `backend/Dockerfile`; no GPU container is supplied.
+
+The route returns `DOCUMENT_PAGE_LIMIT_EXCEEDED` when a document exceeds `MAX_PDF_PAGES`, `IMAGE_DIMENSION_LIMIT_EXCEEDED` when a decoded page exceeds configured dimensions, `OCR_ENGINE_UNAVAILABLE` when the selected engine cannot initialize, and `OCR_TIMEOUT` when its configured time limit is exceeded. Provider requests retain explicit 60-second SDK timeouts and report `PROVIDER_TIMEOUT` if all configured providers time out. A future GPU image would need a CUDA runtime and GPU-enabled OCR dependencies; that variant is not implemented.
+
 ## `POST /api/validate`
 
 Checks business consistency for an already extracted `InvoiceExtractionData` JSON object. It does not call an AI provider, alter supplied values, or turn validation findings into extraction errors. Validation findings are returned separately from the invoice data.
@@ -172,6 +264,7 @@ Errors use a consistent JSON shape. The `code` is stable for client handling; th
 | `400 Bad Request` | `INVALID_DOCUMENT` | Supported document content is malformed or incomplete. |
 | `413 Content Too Large` | `FILE_TOO_LARGE` | File exceeds `MAX_UPLOAD_SIZE_BYTES`. |
 | `413 Content Too Large` | `PDF_PAGE_LIMIT_EXCEEDED` | PDF exceeds `MAX_PDF_PAGES`. |
+| `413 Content Too Large` | `DOCUMENT_PAGE_LIMIT_EXCEEDED` | Evidence endpoint document exceeds `MAX_PDF_PAGES`. |
 | `413 Content Too Large` | `IMAGE_DIMENSION_LIMIT_EXCEEDED` | Image exceeds `MAX_IMAGE_WIDTH` or `MAX_IMAGE_HEIGHT`. |
 | `415 Unsupported Media Type` | `UNSUPPORTED_FORMAT` | Unsupported format/extension or extension/MIME type does not match file content. |
 | `422 Unprocessable Entity` | `INVALID_REQUEST` | Required multipart field is missing or the request cannot be parsed. |
@@ -180,7 +273,9 @@ Errors use a consistent JSON shape. The `code` is stable for client handling; th
 | `502 Bad Gateway` | `PROVIDER_FAILURE` | Configured providers failed for another upstream reason. |
 | `503 Service Unavailable` | `MISSING_PROVIDER_CONFIGURATION` | No AI extraction provider is configured. |
 | `503 Service Unavailable` | `PROVIDER_RATE_LIMIT` | Configured providers could not process the request due to rate limiting. |
+| `503 Service Unavailable` | `OCR_ENGINE_UNAVAILABLE` | Configured OCR engine or its local models are unavailable. |
 | `504 Gateway Timeout` | `PROVIDER_TIMEOUT` | Configured provider requests timed out. |
+| `504 Gateway Timeout` | `OCR_TIMEOUT` | OCR exceeded `EVIDENCE_OCR_TIMEOUT_SECONDS`. |
 | `500 Internal Server Error` | `INTERNAL_SERVER_ERROR` | An unexpected server error occurred. |
 
 This error envelope replaces the previous FastAPI `{"detail": "..."}` response,

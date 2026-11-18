@@ -13,6 +13,7 @@ class ProviderUsage:
     input_tokens: int | None = None
     output_tokens: int | None = None
     total_tokens: int | None = None
+    reasoning_tokens: int | None = None
     source: str = "provider_reported"
 
 
@@ -33,12 +34,16 @@ def reported_usage(response: Any, provider: str) -> ProviderUsage:
             input_tokens=getattr(usage, "input_tokens", None),
             output_tokens=getattr(usage, "output_tokens", None),
             total_tokens=getattr(usage, "total_tokens", None),
+            reasoning_tokens=getattr(
+                getattr(usage, "output_tokens_details", None), "reasoning_tokens", None
+            ),
         )
     usage = getattr(response, "usage_metadata", None)
     return ProviderUsage(
         input_tokens=getattr(usage, "prompt_token_count", None),
         output_tokens=getattr(usage, "candidates_token_count", None),
         total_tokens=getattr(usage, "total_token_count", None),
+        reasoning_tokens=getattr(usage, "thoughts_token_count", None),
     )
 
 
