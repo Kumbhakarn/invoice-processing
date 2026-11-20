@@ -4,6 +4,7 @@ import binascii
 import io
 import logging
 import struct
+import time
 import zlib
 from pathlib import PurePath
 from typing import Annotated
@@ -194,35 +195,68 @@ async def extract_invoice(
     declared_mime_type = (file.content_type or "").split(";", maxsplit=1)[0].strip().lower()
 
     max_size = get_settings().max_upload_size_bytes
-    file_bytes = await file.read(max_size + 1)
-    request.state.upload_size_bytes = len(file_bytes)
+    upload_started_at = time.perf_counter()
+    upload_outcome = "failure"
+    try:
+        file_bytes = await file.read(max_size + 1)
+        request.state.upload_size_bytes = len(file_bytes)
+        upload_outcome = "success"
+    finally:
+        logger.info(
+            "upload read completed",
+            extra={
+                "event": "upload_read_finished",
+                "duration_ms": round((time.perf_counter() - upload_started_at) * 1000, 2),
+                "upload_size_bytes": getattr(request.state, "upload_size_bytes", None),
+                "outcome": upload_outcome,
+            },
+        )
     logger.info(
         "upload received",
         extra={"event": "upload_received", "upload_size_bytes": len(file_bytes)},
     )
-    if len(file_bytes) > max_size:
-        raise ApiError(413, "FILE_TOO_LARGE", "Uploaded file exceeds the maximum allowed size.")
-    if not file_bytes:
-        raise ApiError(400, "EMPTY_FILE", "Uploaded file is empty.")
 
-    mime_type = _detect_mime_type(file_bytes)
-    if mime_type is None:
-        if (
-            extension in _EXTENSION_MIME_TYPES
-            or declared_mime_type in _EXTENSION_MIME_TYPES.values()
-        ):
-            raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
-        raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
-    if extension and extension not in _EXTENSION_MIME_TYPES:
-        raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
-    if extension and _EXTENSION_MIME_TYPES[extension] != mime_type:
-        raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
-    if declared_mime_type not in {mime_type, "application/octet-stream"}:
-        raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
-    if not extension and declared_mime_type != mime_type:
-        raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
+    validation_started_at = time.perf_counter()
+    validation_outcome = "failure"
+    try:
+        if len(file_bytes) > max_size:
+            raise ApiError(
+                413,
+                "FILE_TOO_LARGE",
+                "Uploaded file exceeds the maximum allowed size.",
+            )
+        if not file_bytes:
+            raise ApiError(400, "EMPTY_FILE", "Uploaded file is empty.")
 
-    _check_document_resources(file_bytes, mime_type)
+        mime_type = _detect_mime_type(file_bytes)
+        if mime_type is None:
+            if (
+                extension in _EXTENSION_MIME_TYPES
+                or declared_mime_type in _EXTENSION_MIME_TYPES.values()
+            ):
+                raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
+            raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
+        if extension and extension not in _EXTENSION_MIME_TYPES:
+            raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
+        if extension and _EXTENSION_MIME_TYPES[extension] != mime_type:
+            raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
+        if declared_mime_type not in {mime_type, "application/octet-stream"}:
+            raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
+        if not extension and declared_mime_type != mime_type:
+            raise ApiError(415, "UNSUPPORTED_FORMAT", "Upload a PDF, JPEG, or PNG file.")
+
+        _check_document_resources(file_bytes, mime_type)
+        validation_outcome = "success"
+    finally:
+        logger.info(
+            "document validation completed",
+            extra={
+                "event": "document_validation_finished",
+                "duration_ms": round((time.perf_counter() - validation_started_at) * 1000, 2),
+                "upload_size_bytes": len(file_bytes),
+                "outcome": validation_outcome,
+            },
+        )
 
     try:
         return await extract_document_data(file_bytes, mime_type, filename)

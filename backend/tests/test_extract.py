@@ -126,6 +126,53 @@ def test_valid_supported_file_reaches_extraction(
     assert calls == [(content, content_type, filename)]
 
 
+def test_upload_and_validation_durations_are_logged(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    _mock_extraction(monkeypatch)
+    caplog.set_level(logging.INFO)
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 200
+    events = {
+        record.event: record
+        for record in caplog.records
+        if getattr(record, "event", "")
+        in {"upload_read_finished", "document_validation_finished"}
+    }
+    assert set(events) == {"upload_read_finished", "document_validation_finished"}
+    assert all(record.duration_ms >= 0 for record in events.values())
+    assert all(record.outcome == "success" for record in events.values())
+    assert events["upload_read_finished"].upload_size_bytes == len(_pdf())
+
+
+def test_invalid_upload_logs_validation_failure_duration(
+    client: TestClient,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.INFO)
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", b"not a PDF", "application/pdf")},
+    )
+
+    assert response.status_code == 400
+    event = next(
+        record
+        for record in caplog.records
+        if getattr(record, "event", "") == "document_validation_finished"
+    )
+    assert event.outcome == "failure"
+    assert event.duration_ms >= 0
+
+
 def test_extraction_response_serializes_nullable_schema_fields(
     client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
