@@ -16,6 +16,41 @@ Reports that the API process is responding.
 }
 ```
 
+This endpoint remains a process liveness check and does not check PostgreSQL.
+
+## `GET /api/ready`
+
+Reports whether the application can persist extraction results.
+
+### Ready — `200 OK`
+
+```json
+{
+  "status": "ready",
+  "database": "ok"
+}
+```
+
+### Not ready — `503 Service Unavailable`
+
+Returned when `DATABASE_URL` is not configured or PostgreSQL cannot be reached:
+
+```json
+{
+  "status": "not_ready",
+  "database": "unavailable"
+}
+```
+
+When `DATABASE_URL` is unset, extraction continues in its existing non-persistent mode.
+When configured, successful extraction responses are unchanged. PostgreSQL connectivity
+is checked before provider processing; failures before or during persistence return 503.
+Successful uploads to either extraction endpoint are stored on local disk under
+`DOCUMENT_STORAGE_DIR/YYYY/MM/DD/<file_id>.<extension>`. PostgreSQL stores the file ID,
+request trace ID, UTC upload and processing timestamps, a relative storage path, the
+extracted invoice JSON, and provider token usage per attempt. Document bytes are not
+stored in PostgreSQL.
+
 ## `POST /api/extract`
 
 Accepts one invoice or export document as `multipart/form-data` and returns extracted structured data.
@@ -281,6 +316,8 @@ Errors use a consistent JSON shape. The `code` is stable for client handling; th
 | `502 Bad Gateway` | `INVALID_AI_RESPONSE` | Configured providers returned empty or invalid structured data. |
 | `502 Bad Gateway` | `PROVIDER_FAILURE` | Configured providers failed for another upstream reason. |
 | `503 Service Unavailable` | `MISSING_PROVIDER_CONFIGURATION` | No AI extraction provider is configured. |
+| `503 Service Unavailable` | `DATABASE_UNAVAILABLE` | Configured PostgreSQL is unavailable before extraction. |
+| `503 Service Unavailable` | `PERSISTENCE_FAILURE` | The document or extraction result could not be persisted. |
 | `503 Service Unavailable` | `PROVIDER_RATE_LIMIT` | Configured providers could not process the request due to rate limiting. |
 | `503 Service Unavailable` | `OCR_ENGINE_UNAVAILABLE` | Configured OCR engine or its local models are unavailable. |
 | `504 Gateway Timeout` | `PROVIDER_TIMEOUT` | Configured provider requests timed out. |
@@ -297,4 +334,13 @@ so clients that read `detail` should migrate to `error.code` and `error.message`
 - Upload format checks are lightweight integrity checks, not full document rendering. Multipart parsing occurs before the route's bounded file read.
 - Application logs are newline-delimited JSON. `LOG_LEVEL` controls the minimum level and defaults to `INFO`. Logs include request/provider metadata and traceback frames but omit raw exception messages, credentials, uploaded contents, and extracted invoice data.
 - Provider token counts are logged only when reported by the SDK. Estimated USD costs use `PROVIDER_PRICING_JSON` and `PROVIDER_PRICING_VERSION`; unknown models or missing token counts produce no cost estimate. Usage metadata remains internal and is not added to the extraction response.
+- PostgreSQL persistence is enabled only when `DATABASE_URL` is configured. `GET /api/health` remains process-only; `GET /api/ready` checks database connectivity. Run Alembic migrations explicitly with `uv run alembic upgrade head` from `backend/`.
+- Database records retain extracted invoice JSON and provider token usage. Local document files are stored beneath `DOCUMENT_STORAGE_DIR`; configure backup and retention policies for both.
 - Pricing JSON maps provider names (`OpenAI`, `Gemini`) to model names and `input_per_million_usd` / `output_per_million_usd` rates. Set the version alongside any pricing update; no default provider prices are assumed.
+
+## Database environment variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | unset | PostgreSQL SQLAlchemy async URL, for example using the `postgresql+asyncpg` driver. When unset, extraction runs without persistence. |
+| `DOCUMENT_STORAGE_DIR` | `backend/data/documents` | Local directory root for uploaded files, partitioned by UTC date and file ID. |

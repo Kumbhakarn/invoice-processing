@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_ROOT = Path(__file__).resolve().parents[3]
@@ -32,6 +32,16 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     provider_pricing_json: str = "{}"
     provider_pricing_version: str = "unconfigured"
+    database_url: str | None = None
+    document_storage_dir: Path = BACKEND_ROOT / "data" / "documents"
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: object) -> object:
+        """Treat an empty DATABASE_URL as disabled persistence."""
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_ROOT / ".env",

@@ -2,6 +2,8 @@
 
 import logging
 import time
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -16,17 +18,42 @@ from docextract.api.routes.validate import router as validate_router
 from docextract.core.config import get_settings
 from docextract.core.logging_config import configure_logging
 from docextract.core.request_context import reset_request_id, set_request_id
+from docextract.db.session import DatabaseResources, create_database
 
 logger = logging.getLogger(__name__)
 
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
-    configure_logging(get_settings().log_level)
+    settings = get_settings()
+    configure_logging(settings.log_level)
+
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        database: DatabaseResources | None = None
+        if settings.database_url:
+            try:
+                database = create_database(settings.database_url)
+            except Exception as error:
+                logger.error(
+                    "database engine initialization failed",
+                    extra={
+                        "event": "database_initialization_failed",
+                        "error_type": type(error).__name__,
+                    },
+                )
+        application.state.database = database
+        try:
+            yield
+        finally:
+            if database is not None:
+                await database.engine.dispose()
+
     application = FastAPI(
         title="DocExtract API",
         summary="Invoice processing and extraction API",
         version="0.1.0",
+        lifespan=lifespan,
     )
     application.include_router(health_router, prefix="/api")
     application.include_router(extract_router, prefix="/api")

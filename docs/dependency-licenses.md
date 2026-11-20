@@ -1,7 +1,7 @@
-﻿# Locked dependency license inventory
+# Locked dependency license inventory
 
-Generated from `backend/uv.lock`: 137 registry packages (including transitive and optional dependencies).
-License labels are read from the exact release's PyPI metadata; release pages are linked for review. `UNSPECIFIED` means that release metadata did not declare a license and needs maintainer review.
+Generated from `backend/uv.lock`: 142 registry packages (including transitive and optional dependencies).
+License labels are read from the exact release's PyPI metadata; release pages are linked for review. `UNSPECIFIED` means release metadata did not declare a license and needs maintainer review.
 
 | Package | Locked version | Declared license |
 | --- | ---: | --- |
@@ -10,10 +10,12 @@ License labels are read from the exact release's PyPI metadata; release pages ar
 | [aiohttp](https://pypi.org/project/aiohttp/3.14.5/) | `3.14.5` | Apache-2.0 AND MIT |
 | [aiosignal](https://pypi.org/project/aiosignal/1.4.0/) | `1.4.0` | Apache Software License |
 | [aistudio-sdk](https://pypi.org/project/aistudio-sdk/0.3.9/) | `0.3.9` | Apache Software License |
+| [alembic](https://pypi.org/project/alembic/1.20.1/) | `1.20.1` | MIT |
 | [annotated-doc](https://pypi.org/project/annotated-doc/0.0.5/) | `0.0.5` | MIT |
 | [annotated-types](https://pypi.org/project/annotated-types/0.8.0/) | `0.8.0` | MIT |
 | [anyio](https://pypi.org/project/anyio/4.16.0/) | `4.16.0` | MIT |
 | [ast-serialize](https://pypi.org/project/ast-serialize/0.13.1/) | `0.13.1` | MIT |
+| [asyncpg](https://pypi.org/project/asyncpg/0.32.0/) | `0.32.0` | Apache-2.0 |
 | [attrs](https://pypi.org/project/attrs/26.1.0/) | `26.1.0` | MIT |
 | [bce-python-sdk](https://pypi.org/project/bce-python-sdk/0.9.79/) | `0.9.79` | Apache License 2.0 |
 | [certifi](https://pypi.org/project/certifi/2026.10.23/) | `2026.10.23` | Mozilla Public License 2.0 (MPL 2.0) |
@@ -41,6 +43,7 @@ License labels are read from the exact release's PyPI metadata; release pages ar
 | [google-auth](https://pypi.org/project/google-auth/2.62.0/) | `2.62.0` | Apache Software License |
 | [google-genai](https://pypi.org/project/google-genai/2.34.0/) | `2.34.0` | Apache-2.0 |
 | [googleapis-common-protos](https://pypi.org/project/googleapis-common-protos/1.76.0/) | `1.76.0` | Apache-2.0 |
+| [greenlet](https://pypi.org/project/greenlet/3.5.6/) | `3.5.6` | MIT AND PSF-2.0 |
 | [h11](https://pypi.org/project/h11/0.16.0/) | `0.16.0` | MIT License |
 | [hf-xet](https://pypi.org/project/hf-xet/1.8.0/) | `1.8.0` | Apache-2.0 |
 | [httpcore](https://pypi.org/project/httpcore/1.0.9/) | `1.0.9` | BSD-3-Clause |
@@ -56,6 +59,7 @@ License labels are read from the exact release's PyPI metadata; release pages ar
 | [jinja2](https://pypi.org/project/jinja2/3.1.6/) | `3.1.6` | BSD License |
 | [jiter](https://pypi.org/project/jiter/0.18.0/) | `0.18.0` | MIT |
 | [librt](https://pypi.org/project/librt/0.16.0/) | `0.16.0` | MIT |
+| [mako](https://pypi.org/project/mako/1.4.3/) | `1.4.3` | MIT |
 | [markdown-it-py](https://pypi.org/project/markdown-it-py/4.2.0/) | `4.2.0` | MIT License |
 | [markupsafe](https://pypi.org/project/markupsafe/3.0.4/) | `3.0.4` | BSD-3-Clause |
 | [mdurl](https://pypi.org/project/mdurl/0.1.2/) | `0.1.2` | MIT License |
@@ -126,6 +130,7 @@ License labels are read from the exact release's PyPI metadata; release pages ar
 | [shellingham](https://pypi.org/project/shellingham/1.5.4/) | `1.5.4` | ISC License (ISCL) |
 | [six](https://pypi.org/project/six/1.17.0/) | `1.17.0` | MIT License |
 | [sniffio](https://pypi.org/project/sniffio/1.3.1/) | `1.3.1` | Apache Software License; MIT License |
+| [sqlalchemy](https://pypi.org/project/sqlalchemy/2.1.9/) | `2.1.9` | MIT |
 | [starlette](https://pypi.org/project/starlette/1.10.0/) | `1.10.0` | BSD-3-Clause |
 | [tenacity](https://pypi.org/project/tenacity/9.1.4/) | `9.1.4` | Apache Software License |
 | [tqdm](https://pypi.org/project/tqdm/4.70.1/) | `4.70.1` | MPL-2.0 AND MIT |
