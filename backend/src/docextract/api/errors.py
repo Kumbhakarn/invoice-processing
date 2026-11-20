@@ -7,9 +7,27 @@ from collections.abc import Mapping
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger(__name__)
+
+
+class ApiErrorDetails(BaseModel):
+    """Stable error information returned when a request fails."""
+
+    code: str = Field(description="Stable machine-readable error code.")
+    message: str = Field(description="Safe error message; provider details are omitted.")
+    request_id: str | None = Field(
+        default=None,
+        description="Request correlation UUID, when middleware has assigned one.",
+    )
+
+
+class ApiErrorResponse(BaseModel):
+    """Common JSON envelope for API errors."""
+
+    error: ApiErrorDetails = Field(description="The error code, message, and request ID.")
 
 
 class ApiError(Exception):

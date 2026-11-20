@@ -6,7 +6,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, File, Request, UploadFile
 
-from docextract.api.errors import ApiError
+from docextract.api.errors import ApiError, ApiErrorResponse
 from docextract.core.config import get_settings
 from docextract.schemas_evidence import EvidenceExtractionResponse
 from docextract.services.evidence.ocr import (
@@ -50,7 +50,30 @@ def _detect_mime_type(file_bytes: bytes) -> str | None:
     return None
 
 
-@router.post("/extract/evidence", response_model=EvidenceExtractionResponse)
+@router.post(
+    "/extract/evidence",
+    response_model=EvidenceExtractionResponse,
+    summary="Extract invoice fields with evidence",
+    description=(
+        "Interim endpoint that returns invoice values, field-level evidence, and confidence "
+        "scores. Accepts PDF, JPEG, PNG, WEBP, or TIFF. "
+        "No authentication is required."
+    ),
+    response_description="Extracted invoice data with field evidence and page metadata.",
+    responses={
+        400: {"model": ApiErrorResponse, "description": "The upload is empty or malformed."},
+        413: {
+            "model": ApiErrorResponse,
+            "description": "Upload or document resource limit exceeded.",
+        },
+        415: {"model": ApiErrorResponse, "description": "Unsupported or mismatched file format."},
+        422: {"model": ApiErrorResponse, "description": "Multipart request is invalid."},
+        502: {"model": ApiErrorResponse, "description": "Configured providers failed."},
+        503: {"model": ApiErrorResponse, "description": "Provider or OCR engine unavailable."},
+        504: {"model": ApiErrorResponse, "description": "Provider or OCR operation timed out."},
+        500: {"model": ApiErrorResponse, "description": "Unexpected server error."},
+    },
+)
 async def extract_invoice_evidence(
     request: Request,
     file: Annotated[UploadFile, File(description="An invoice PDF or image document")],

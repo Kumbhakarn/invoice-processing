@@ -26,7 +26,15 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title="DocExtract API",
         summary="Invoice processing and extraction API",
+        description=(
+            "Extract structured invoice/export-document data, retrieve interim field evidence, "
+            "and validate supplied invoice data. Authentication is not currently required."
+        ),
         version="0.1.0",
+        openapi_tags=[
+            {"name": "health", "description": "Service liveness check."},
+            {"name": "invoices", "description": "Invoice extraction, evidence, and validation."},
+        ],
     )
     application.include_router(health_router, prefix="/api")
     application.include_router(extract_router, prefix="/api")

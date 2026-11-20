@@ -4,6 +4,8 @@ Base path: `/api`
 
 The API is implemented by the FastAPI backend. JSON response fields and types below reflect the current Pydantic response models. All fields in extraction responses are nullable and are returned as `null` when no value is extracted.
 
+The current API does not require authentication. Requests do not need an `Authorization` header.
+
 ## `GET /api/health`
 
 Reports that the API process is responding.
@@ -16,6 +18,10 @@ Reports that the API process is responding.
 }
 ```
 
+The endpoint returns `200 OK` while the API process is responding. It does not check
+whether AI providers or OCR engines are configured. An unexpected server error returns
+`500 Internal Server Error` using the common error envelope.
+
 ## `POST /api/extract`
 
 Accepts one invoice or export document as `multipart/form-data` and returns extracted structured data.
@@ -27,6 +33,15 @@ Accepts one invoice or export document as `multipart/form-data` and returns extr
 | `file` | file | Yes | PDF, JPEG, or PNG document. |
 
 The default maximum upload size is 10 MiB (10,485,760 bytes), configurable with `MAX_UPLOAD_SIZE_BYTES`. Files at the configured limit are accepted. The default maximum PDF length is 50 pages (`MAX_PDF_PAGES`). The default maximum image width and height are each 10,000 pixels (`MAX_IMAGE_WIDTH` and `MAX_IMAGE_HEIGHT`). Documents exceeding any configured limit are rejected. The endpoint checks file content and compares its detected format with the filename extension and declared MIME type. A generic `application/octet-stream` MIME type is accepted when the filename extension identifies a supported format.
+
+Example request from a shell with the API running locally:
+
+```powershell
+curl.exe -X POST http://127.0.0.1:8000/api/extract `
+  -F "file=@invoice.pdf;type=application/pdf"
+```
+
+The multipart form field must be named `file`. No authentication header is required.
 
 Supported extensions and MIME types:
 
@@ -85,17 +100,29 @@ Returns an `InvoiceExtractionData` JSON object. Fields not found in the document
 
 `line_items` is either `null` or an array of objects with these nullable fields:
 
-| Field | Type |
-| --- | --- |
-| `sr_no` | integer |
-| `marks_and_numbers` | string |
-| `number_of_packages` | number |
-| `description_of_goods` | string |
-| `quantity` | number |
-| `hsn_code` | string |
-| `unit_of_measurement` | string |
-| `rate` | number |
-| `amount` | number |
+| Field | Type | Description |
+| --- | --- | --- |
+| `sr_no` | integer | Printed serial or row number. |
+| `marks_and_numbers` | string | Marks printed for the line item or packages. |
+| `number_of_packages` | number | Package count for the line item. |
+| `description_of_goods` | string | Printed goods or service description. |
+| `quantity` | number | Quantity shown for the line item. |
+| `hsn_code` | string | Harmonized/tariff code when printed. |
+| `unit_of_measurement` | string | Unit associated with the quantity. |
+| `rate` | number | Per-unit rate. |
+| `amount` | number | Extended amount printed for the line. |
+
+Every line-item property is nullable. `sr_no` is an integer; package count, quantity, rate,
+and amount are numbers; marks, description, HSN code, and unit are strings.
+
+### Provider behavior
+
+Configure `OPENAI_API_KEY`, `GEMINI_API_KEY`, or both. OpenAI is attempted first when
+configured. Gemini is attempted next when configured if the preceding provider fails,
+including on provider errors, rate limits, or invalid output. With no provider key, the
+endpoint returns `503 MISSING_PROVIDER_CONFIGURATION`. Provider SDK calls have 60-second
+timeouts. `/api/extract` returns extracted values only; provider usage and cost metadata
+are logged internally and are not added to its response.
 
 ## `POST /api/extract/evidence` — interim endpoint contract
 
@@ -222,21 +249,29 @@ The current extraction schema has no invoice-level numeric total, subtotal, tax,
 
 The top-level fields are:
 
-| Field | Type |
-| --- | --- |
-| `document_type`, `invoice_number`, `invoice_date` | string |
-| `buyer_name`, `buyer_address` | string |
-| `exporter_name`, `exporter_address` | string |
-| `consignee_name`, `consignee_address` | string |
-| `notify_party_name`, `notify_party_address` | string |
-| `country_of_origin`, `country_of_final_destination` | string |
-| `port_of_loading`, `port_of_discharge`, `final_destination` | string |
-| `shipping_marks` | string |
-| `line_items` | array of line-item objects |
-| `currency`, `terms_of_delivery_and_payment`, `payment_terms`, `incoterms` | string |
-| `amount_in_words` | string |
-| `net_weight`, `gross_weight` | number |
-| `weight_unit` | string |
+| Field | Type | Description |
+| --- | --- | --- |
+| `document_type` | string | Printed document category, such as invoice or commercial invoice. |
+| `invoice_number` | string | Invoice identifier as printed. |
+| `invoice_date` | string | Invoice date; normalized to `YYYY-MM-DD` only when unambiguous. |
+| `buyer_name`, `buyer_address` | string | Buyer name and address as printed. |
+| `exporter_name`, `exporter_address` | string | Exporter/seller name and address as printed. |
+| `consignee_name`, `consignee_address` | string | Consignee name and address when shown. |
+| `notify_party_name`, `notify_party_address` | string | Notify-party name and address when shown. |
+| `country_of_origin` | string | Country where the goods originate, when stated. |
+| `country_of_final_destination` | string | Country of final destination, when stated. |
+| `port_of_loading` | string | Port from which the goods are loaded. |
+| `port_of_discharge` | string | Port where the goods are discharged. |
+| `final_destination` | string | Final destination shown on the document. |
+| `shipping_marks` | string | Shipment/package marks as printed. |
+| `line_items` | array of line-item objects | Printed item rows in document order, or `null`. |
+| `currency` | string | Currency code or label as printed; extraction does not validate it. |
+| `terms_of_delivery_and_payment` | string | Combined delivery and payment terms, when shown. |
+| `payment_terms` | string | Payment terms as printed. |
+| `incoterms` | string | Incoterms value as printed. |
+| `amount_in_words` | string | Printed total amount in words, when present. |
+| `net_weight`, `gross_weight` | number | Net and gross weights as JSON numbers. |
+| `weight_unit` | string | Unit used for the weights. |
 
 ### Errors
 
@@ -278,8 +313,55 @@ Errors use a consistent JSON shape. The `code` is stable for client handling; th
 | `504 Gateway Timeout` | `OCR_TIMEOUT` | OCR exceeded `EVIDENCE_OCR_TIMEOUT_SECONDS`. |
 | `500 Internal Server Error` | `INTERNAL_SERVER_ERROR` | An unexpected server error occurred. |
 
+Other generic HTTP errors use `404 NOT_FOUND`, `405 METHOD_NOT_ALLOWED`, or
+`400 INVALID_REQUEST` where applicable. The API does not currently return `401` or `403`
+because authentication is not implemented.
+
 This error envelope replaces the previous FastAPI `{"detail": "..."}` response,
 so clients that read `detail` should migrate to `error.code` and `error.message`.
+
+## Environment variables
+
+Settings are loaded from environment variables and `backend/.env`. Names below are the
+uppercase environment forms of the backend settings. Copy `backend/.env.example` to
+`backend/.env` for local configuration; keep the `.env` file private. Provider keys are
+optional individually, but at least one must be set to use extraction.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | unset | OpenAI credential. OpenAI is tried first when configured. |
+| `GEMINI_API_KEY` | unset | Gemini credential and fallback when configured. |
+| `OPENAI_MODEL` | `gpt-6-luna` | OpenAI model name. |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Gemini model name. |
+| `MAX_UPLOAD_SIZE_BYTES` | `10485760` | Maximum upload size in bytes (10 MiB). |
+| `MAX_PDF_PAGES` | `50` | Maximum page/frame count used by PDF and evidence processing. |
+| `MAX_IMAGE_WIDTH` | `10000` | Maximum image width in pixels for document validation. |
+| `MAX_IMAGE_HEIGHT` | `10000` | Maximum image height in pixels for document validation. |
+| `EVIDENCE_RENDER_DPI` | `200` | Render resolution for evidence page images. |
+| `EVIDENCE_TEXT_LAYER_MIN_CHARS` | `20` | Minimum usable text length for a PDF page's text layer. |
+| `EVIDENCE_OCR_ENGINE` | `rapidocr` | OCR engine: `rapidocr` or `paddleocr`. |
+| `EVIDENCE_OCR_WORKERS` | `2` | Maximum concurrent OCR workers (1–8). |
+| `EVIDENCE_OCR_TIMEOUT_SECONDS` | `30` | Evidence OCR timeout in seconds. |
+| `EVIDENCE_OCR_MODEL_DIR` | unset | Local PaddleOCR model directory; only needed with PaddleOCR. |
+| `EVIDENCE_MATCH_THRESHOLD` | `0.82` | Minimum evidence text match score. |
+| `EVIDENCE_MATCH_AMBIGUITY_MARGIN` | `0.05` | Score margin used to identify ambiguous evidence matches. |
+| `EVIDENCE_CONFIDENCE_WEIGHTS_JSON` | See below | Weights for the uncalibrated evidence confidence heuristic. |
+| `LOG_LEVEL` | `INFO` | Minimum application log level. |
+| `PROVIDER_PRICING_JSON` | `{}` | Optional provider/model token rates used for internal cost estimates. |
+| `PROVIDER_PRICING_VERSION` | `unconfigured` | Label identifying the configured provider pricing table. |
+
+The default confidence weights are:
+
+```json
+{"grounding":0.35,"match_quality":0.25,"ocr_confidence":0.15,"provider_logprob":0.10,"validation":0.15}
+```
+
+Weights are uncalibrated heuristic inputs, not probabilities. Missing components are
+omitted and the remaining weights are renormalized. `PROVIDER_PRICING_JSON` maps `OpenAI`
+or `Gemini` model names to `input_per_million_usd` and `output_per_million_usd` values.
+Unknown models and missing token counts do not produce a cost estimate. The server host,
+port, and reload behavior are selected in the Uvicorn command; they are not application
+environment settings.
 
 ## Compatibility notes
 

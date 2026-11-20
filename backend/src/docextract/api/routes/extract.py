@@ -10,7 +10,7 @@ from typing import Annotated
 from fastapi import APIRouter, File, Request, UploadFile
 from pypdf import PdfReader
 
-from docextract.api.errors import ApiError
+from docextract.api.errors import ApiError, ApiErrorResponse
 from docextract.core.config import get_settings
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.extractor import (
@@ -176,7 +176,33 @@ def _check_document_resources(file_bytes: bytes, mime_type: str) -> None:
         raise ApiError(400, "INVALID_DOCUMENT", "The uploaded document is invalid.")
 
 
-@router.post("/extract", response_model=InvoiceExtractionData)
+@router.post(
+    "/extract",
+    response_model=InvoiceExtractionData,
+    summary="Extract invoice fields",
+    description=(
+        "Upload one PDF, JPEG, or PNG invoice/export document as multipart form data. "
+        "No authentication is required. OpenAI is attempted first; Gemini is used as a "
+        "fallback when configured."
+    ),
+    response_description="All configured invoice fields, with null for values not extracted.",
+    responses={
+        400: {"model": ApiErrorResponse, "description": "The upload is empty or malformed."},
+        413: {
+            "model": ApiErrorResponse,
+            "description": "Upload or document resource limit exceeded.",
+        },
+        415: {"model": ApiErrorResponse, "description": "Unsupported or mismatched file format."},
+        422: {"model": ApiErrorResponse, "description": "Multipart request is invalid."},
+        502: {"model": ApiErrorResponse, "description": "Configured providers failed."},
+        503: {
+            "model": ApiErrorResponse,
+            "description": "No provider is configured or rate limited.",
+        },
+        504: {"model": ApiErrorResponse, "description": "Provider request timed out."},
+        500: {"model": ApiErrorResponse, "description": "Unexpected server error."},
+    },
+)
 async def extract_invoice(
     request: Request,
     file: Annotated[UploadFile, File(description="An invoice PDF or image file")],
