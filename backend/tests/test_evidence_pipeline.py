@@ -4,7 +4,7 @@ import asyncio
 
 from docextract.core.config import Settings
 from docextract.schemas import InvoiceExtractionData
-from docextract.schemas_evidence import RawFieldText
+from docextract.schemas_evidence import FieldConfidenceAssessment, RawFieldText
 from docextract.services.evidence import pipeline
 from docextract.services.evidence.types import DecodedDocument, DecodedPage, TextBox
 from docextract.services.extractor import ExtractionResult
@@ -26,6 +26,7 @@ def test_pipeline_maps_pages_and_grounds_raw_text(monkeypatch) -> None:
             data,
             (),
             (RawFieldText(field="invoice_date", raw="15/01/2025"),),
+            (FieldConfidenceAssessment(field="invoice_number", confidence="High"),),
         )
 
     monkeypatch.setattr(pipeline, "decode_document", decode)
@@ -40,6 +41,8 @@ def test_pipeline_maps_pages_and_grounds_raw_text(monkeypatch) -> None:
     assert result.pages[0].page == 1
     assert result.fields["invoice_date"].raw == "15/01/2025"
     assert result.fields["invoice_number"].value == "INV-42"
+    assert result.fields["invoice_number"].confidence == "High"
+    assert result.fields["invoice_date"].confidence is None
     assert set(result.meta.timings_ms) == {
         "validation",
         "text_layer",

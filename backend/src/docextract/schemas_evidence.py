@@ -9,6 +9,7 @@ from docextract.schemas import InvoiceExtractionData
 NormalizedBox = tuple[float, float, float, float]
 EvidenceReason = Literal["not_found", "ambiguous", "ocr_failed", "low_quality"]
 EvidenceStatus = Literal["located", "unavailable", "ambiguous"]
+ConfidenceLevel = Literal["High", "Medium", "Low"]
 
 
 class SourceCandidate(BaseModel):
@@ -75,7 +76,7 @@ class FieldEvidence(BaseModel):
 
     field: str
     raw: str | None = None
-    confidence: float = Field(default=0, ge=0, le=1)
+    confidence: ConfidenceLevel | None = None
     source: FieldSource = Field(default_factory=FieldSource)
     edited: bool = False
 
@@ -87,7 +88,7 @@ class MappedField(BaseModel):
 
     value: Any
     raw: str | None
-    confidence: float = Field(ge=0, le=1)
+    confidence: ConfidenceLevel | None = None
     source: FieldSource
     edited: bool
 
@@ -143,6 +144,15 @@ class RawFieldText(BaseModel):
     raw: str
 
 
+class FieldConfidenceAssessment(BaseModel):
+    """Model self-assessment for one scalar invoice field path."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    field: str
+    confidence: ConfidenceLevel | None
+
+
 class EvidenceProviderResponse(BaseModel):
     """Private structured result used only by the evidence extraction pipeline."""
 
@@ -150,3 +160,4 @@ class EvidenceProviderResponse(BaseModel):
 
     data: InvoiceExtractionData
     raw_fields: list[RawFieldText]
+    field_confidences: list[FieldConfidenceAssessment]

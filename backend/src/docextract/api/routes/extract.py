@@ -2,16 +2,19 @@
 
 import binascii
 import io
+import logging
 import struct
 import zlib
 from pathlib import PurePath
 from typing import Annotated
+from uuid import uuid4
 
 from fastapi import APIRouter, File, Request, UploadFile
 from pypdf import PdfReader
 
 from docextract.api.errors import ApiError
 from docextract.core.config import get_settings
+from docextract.core.request_context import set_file_id
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.extractor import (
     ExtractionNotConfiguredError,
@@ -20,6 +23,7 @@ from docextract.services.extractor import (
 )
 
 router = APIRouter(tags=["invoices"])
+logger = logging.getLogger(__name__)
 
 _EXTENSION_MIME_TYPES = {
     ".pdf": "application/pdf",
@@ -183,12 +187,19 @@ async def extract_invoice(
 ) -> InvoiceExtractionData:
     """Accept an invoice document and return AI-extracted structured data."""
     filename = file.filename or "invoice"
+    file_id = str(uuid4())
+    request.state.file_id = file_id
+    set_file_id(file_id)
     extension = PurePath(filename).suffix.lower()
     declared_mime_type = (file.content_type or "").split(";", maxsplit=1)[0].strip().lower()
 
     max_size = get_settings().max_upload_size_bytes
     file_bytes = await file.read(max_size + 1)
     request.state.upload_size_bytes = len(file_bytes)
+    logger.info(
+        "upload received",
+        extra={"event": "upload_received", "upload_size_bytes": len(file_bytes)},
+    )
     if len(file_bytes) > max_size:
         raise ApiError(413, "FILE_TOO_LARGE", "Uploaded file exceeds the maximum allowed size.")
     if not file_bytes:

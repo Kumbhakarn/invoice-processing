@@ -41,6 +41,7 @@ def create_app() -> FastAPI:
     ) -> Response:
         request_id = str(uuid4())
         request.state.request_id = request_id
+        request.state.trace_id = request_id
         token = set_request_id(request_id)
         started_at = time.perf_counter()
         endpoint = request.url.path
@@ -49,6 +50,7 @@ def create_app() -> FastAPI:
             extra={
                 "event": "request_started",
                 "request_id": request_id,
+                "trace_id": request_id,
                 "endpoint": endpoint,
                 "method": request.method,
             },
@@ -56,12 +58,18 @@ def create_app() -> FastAPI:
         try:
             response = await call_next(request)
             response.headers["X-Request-ID"] = request_id
+            response.headers["X-Trace-ID"] = request_id
+            file_id = getattr(request.state, "file_id", None)
+            if file_id is not None:
+                response.headers["X-File-ID"] = file_id
             outcome = "success" if response.status_code < 400 else "failure"
             logger.info(
                 "request completed",
                 extra={
                     "event": "request_finished",
                     "request_id": request_id,
+                    "trace_id": request_id,
+                    "file_id": getattr(request.state, "file_id", None),
                     "endpoint": endpoint,
                     "method": request.method,
                     "http_status": response.status_code,
@@ -78,6 +86,8 @@ def create_app() -> FastAPI:
                 extra={
                     "event": "request_finished",
                     "request_id": request_id,
+                    "trace_id": request_id,
+                    "file_id": getattr(request.state, "file_id", None),
                     "endpoint": endpoint,
                     "method": request.method,
                     "http_status": 500,
