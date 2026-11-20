@@ -29,14 +29,21 @@ def _error_response(
     message: str,
 ) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
+    trace_id = getattr(request.state, "trace_id", request_id)
+    file_id = getattr(request.state, "file_id", None)
     request.state.error_code = code
     error = {"code": code, "message": message}
     if request_id is not None:
         error["request_id"] = request_id
+    headers = {"X-Request-ID": request_id} if request_id is not None else {}
+    if trace_id is not None:
+        headers["X-Trace-ID"] = trace_id
+    if file_id is not None:
+        headers["X-File-ID"] = file_id
     return JSONResponse(
         status_code=status_code,
         content={"error": error},
-        headers={"X-Request-ID": request_id} if request_id is not None else None,
+        headers=headers or None,
     )
 
 

@@ -4,9 +4,12 @@ import json
 import logging
 from datetime import UTC, datetime
 from logging import LogRecord
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Any
 
-from docextract.core.request_context import get_request_id
+from docextract.core.config import BACKEND_ROOT
+from docextract.core.request_context import get_file_id, get_request_id
 
 _EXTRA_FIELDS = (
     "event",
@@ -20,6 +23,9 @@ _EXTRA_FIELDS = (
     "outcome",
     "error_category",
     "error_type",
+    "provider_error_status",
+    "provider_error_code",
+    "provider_error_param",
     "stack_trace",
     "input_tokens",
     "output_tokens",
@@ -29,6 +35,16 @@ _EXTRA_FIELDS = (
     "pricing_version",
     "fallback_used",
     "retry_count",
+    "trace_id",
+    "file_id",
+    "page_count",
+    "text_box_count",
+    "ocr_page_count",
+    "field_count",
+    "located_count",
+    "ambiguous_count",
+    "unavailable_count",
+    "average_confidence",
 )
 
 
@@ -42,6 +58,8 @@ class JsonLogFormatter(logging.Formatter):
             "logger": record.name,
             "event": getattr(record, "event", record.getMessage()),
             "request_id": getattr(record, "request_id", None) or get_request_id(),
+            "trace_id": getattr(record, "trace_id", None) or get_request_id(),
+            "file_id": getattr(record, "file_id", None) or get_file_id(),
         }
         for field in _EXTRA_FIELDS:
             value = getattr(record, field, None)
@@ -51,15 +69,27 @@ class JsonLogFormatter(logging.Formatter):
 
 
 def configure_logging(level_name: str) -> None:
-    """Set the application log level and install its JSON console handler once."""
+    """Set the app log level and install structured console and rotating file handlers."""
     root_logger = logging.getLogger()
     level = getattr(logging, level_name.upper(), logging.INFO)
     if not isinstance(level, int):
         level = logging.INFO
     root_logger.setLevel(level)
 
-    if not any(getattr(handler, "_docextract_json", False) for handler in root_logger.handlers):
+    if not any(getattr(handler, "_docextract_console", False) for handler in root_logger.handlers):
         handler = logging.StreamHandler()
         handler.setFormatter(JsonLogFormatter())
-        handler._docextract_json = True  # type: ignore[attr-defined]
+        handler._docextract_console = True  # type: ignore[attr-defined]
         root_logger.addHandler(handler)
+
+    if not any(getattr(handler, "_docextract_file", False) for handler in root_logger.handlers):
+        log_path = Path(BACKEND_ROOT) / "app.log"
+        file_handler = RotatingFileHandler(
+            log_path,
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
+            encoding="utf-8",
+        )
+        file_handler.setFormatter(JsonLogFormatter())
+        file_handler._docextract_file = True  # type: ignore[attr-defined]
+        root_logger.addHandler(file_handler)

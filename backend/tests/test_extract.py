@@ -550,9 +550,16 @@ def test_request_id_is_generated_returned_and_unique(
 
     first_id = first.headers["X-Request-ID"]
     second_id = second.headers["X-Request-ID"]
+    first_file_id = first.headers["X-File-ID"]
+    second_file_id = second.headers["X-File-ID"]
     UUID(first_id)
     UUID(second_id)
+    UUID(first_file_id)
+    UUID(second_file_id)
+    assert first.headers["X-Trace-ID"] == first_id
+    assert second.headers["X-Trace-ID"] == second_id
     assert first_id != second_id
+    assert first_file_id != second_file_id
     assert "request_id" not in first.json()
 
 

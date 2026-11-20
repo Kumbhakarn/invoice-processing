@@ -47,9 +47,19 @@ async def extract_evidence_document(
     text_layer_ms = _elapsed_ms(text_layer_started)
 
     text_boxes = [box for page in document.pages for box in page.text_boxes]
+    ocr_pages = [page for page in document.pages if page.requires_ocr]
+    logger.info(
+        "evidence document decoded",
+        extra={
+            "event": "evidence_document_decoded",
+            "page_count": len(document.pages),
+            "text_box_count": len(text_boxes),
+            "ocr_page_count": len(ocr_pages),
+            "duration_ms": text_layer_ms,
+        },
+    )
     ocr_failed = False
     ocr_started = time.perf_counter()
-    ocr_pages = [page for page in document.pages if page.requires_ocr]
     if ocr_pages:
         try:
             with OcrPageProcessor(
@@ -58,6 +68,15 @@ async def extract_evidence_document(
                 timeout_seconds=settings.evidence_ocr_timeout_seconds,
             ) as processor:
                 text_boxes.extend(await processor.extract_pages(ocr_pages))
+            logger.info(
+                "evidence OCR completed",
+                extra={
+                    "event": "evidence_ocr_completed",
+                    "ocr_page_count": len(ocr_pages),
+                    "text_box_count": len(text_boxes),
+                    "outcome": "success",
+                },
+            )
         except OcrTimeoutError:
             raise
         except OcrEngineUnavailableError:
@@ -106,6 +125,26 @@ async def extract_evidence_document(
         settings,
     )
     matching_ms = _elapsed_ms(matching_started)
+    status_counts = {"located": 0, "ambiguous": 0, "unavailable": 0}
+    for item in field_evidence:
+        status_counts[item.source.status] += 1
+    average_confidence = (
+        round(sum(item.confidence for item in field_evidence) / len(field_evidence), 4)
+        if field_evidence
+        else 0.0
+    )
+    logger.info(
+        "evidence matching completed",
+        extra={
+            "event": "evidence_matching_completed",
+            "field_count": len(field_evidence),
+            "located_count": status_counts["located"],
+            "ambiguous_count": status_counts["ambiguous"],
+            "unavailable_count": status_counts["unavailable"],
+            "average_confidence": average_confidence,
+            "duration_ms": matching_ms,
+        },
+    )
     usage = [
         ProviderUsageMetadata(
             provider=attempt.provider,

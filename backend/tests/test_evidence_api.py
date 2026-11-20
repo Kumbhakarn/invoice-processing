@@ -1,5 +1,7 @@
 """Interim evidence endpoint routing and safe error mapping tests."""
 
+from uuid import UUID
+
 from fastapi.testclient import TestClient
 
 from docextract.api.routes import evidence as evidence_route
@@ -34,6 +36,25 @@ def test_evidence_endpoint_accepts_tiff_and_returns_page_metadata(monkeypatch) -
     assert response.status_code == 200
     assert response.json()["pages"] == [{"page": 1, "width": 10, "height": 10}]
     assert response.headers["x-request-id"]
+    UUID(response.headers["x-trace-id"])
+    UUID(response.headers["x-file-id"])
+    assert response.headers["x-trace-id"] == response.headers["x-request-id"]
+
+
+def test_reuploading_same_evidence_file_gets_new_file_id(monkeypatch) -> None:
+    monkeypatch.setattr(evidence_route, "get_settings", lambda: Settings())
+
+    async def fake_extract(*args, **kwargs):
+        return _response()
+
+    monkeypatch.setattr(evidence_route, "extract_evidence_document", fake_extract)
+    client = TestClient(app)
+    upload = {"file": ("invoice.tif", b"II*\x00fixture", "image/tiff")}
+    first = client.post("/api/extract/evidence", files=upload)
+    second = client.post("/api/extract/evidence", files=upload)
+
+    assert first.headers["x-file-id"] != second.headers["x-file-id"]
+    assert first.headers["x-trace-id"] != second.headers["x-trace-id"]
 
 
 def test_evidence_endpoint_maps_ocr_timeout_to_stable_error(monkeypatch) -> None:

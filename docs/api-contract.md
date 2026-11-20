@@ -240,10 +240,19 @@ The top-level fields are:
 
 ### Errors
 
-The API returns an `X-Request-ID` response header on successful and failed requests.
-The server generates a new UUID for each request and uses it to correlate application
-logs. Error responses include the same ID in the error object. The extraction success
-body remains unchanged.
+The API returns `X-Request-ID` and `X-Trace-ID` response headers on successful and failed
+requests. They contain the same fresh UUID for that request; `X-Request-ID` remains for
+compatibility, while `X-Trace-ID` is the correlation ID used across processing logs.
+Upload endpoints also return `X-File-ID`, a fresh UUID for each upload attempt. Uploading
+the same bytes again produces a new file ID. Error responses include the request ID in
+the error object and expose the trace and file IDs in response headers. The extraction
+success body remains unchanged.
+
+The backend writes structured JSON logs to `backend/app.log` and stdout. The file rotates
+at 5 MiB and retains three backups. Request, upload, provider, OCR, and evidence matching
+events include trace and file IDs when available. Logs include processing counts and
+outcomes, but exclude invoice values, OCR text, and bounding boxes. Local log files are
+ignored by Git.
 
 Errors use a consistent JSON shape. The `code` is stable for client handling; the
 `message` is safe for display and does not include provider exception details.

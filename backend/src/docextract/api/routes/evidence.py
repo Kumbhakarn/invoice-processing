@@ -1,13 +1,16 @@
 """Interim field-level evidence extraction endpoint."""
 
+import logging
 import time
 from pathlib import PurePath
 from typing import Annotated
+from uuid import uuid4
 
 from fastapi import APIRouter, File, Request, UploadFile
 
 from docextract.api.errors import ApiError
 from docextract.core.config import get_settings
+from docextract.core.request_context import set_file_id
 from docextract.schemas_evidence import EvidenceExtractionResponse
 from docextract.services.evidence.ocr import (
     OcrEngineUnavailableError,
@@ -21,6 +24,7 @@ from docextract.services.extractor import (
 )
 
 router = APIRouter(tags=["invoices"])
+logger = logging.getLogger(__name__)
 
 _EXTENSION_MIME_TYPES = {
     ".pdf": "application/pdf",
@@ -58,11 +62,18 @@ async def extract_invoice_evidence(
     """Return extraction values with grounded field evidence for review."""
     validation_started = time.perf_counter()
     filename = file.filename or "invoice"
+    file_id = str(uuid4())
+    request.state.file_id = file_id
+    set_file_id(file_id)
     extension = PurePath(filename).suffix.lower()
     declared_mime_type = (file.content_type or "").split(";", maxsplit=1)[0].strip().lower()
     settings = get_settings()
     file_bytes = await file.read(settings.max_upload_size_bytes + 1)
     request.state.upload_size_bytes = len(file_bytes)
+    logger.info(
+        "evidence upload received",
+        extra={"event": "upload_received", "upload_size_bytes": len(file_bytes)},
+    )
     if len(file_bytes) > settings.max_upload_size_bytes:
         raise ApiError(413, "FILE_TOO_LARGE", "Uploaded file exceeds the maximum allowed size.")
     if not file_bytes:
