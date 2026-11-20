@@ -2,15 +2,24 @@
 
 import logging
 import time
+from datetime import UTC, datetime
 from pathlib import PurePath
 from typing import Annotated
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, File, Request, UploadFile
 
 from docextract.api.errors import ApiError
-from docextract.core.config import get_settings
+from docextract.core.config import BACKEND_ROOT, get_settings
 from docextract.core.request_context import set_file_id
+from docextract.db.service import (
+    DatabaseUnavailableError,
+    PersistenceFailureError,
+    ensure_database_ready,
+    evidence_attempt_usage,
+    persist_extraction,
+)
+from docextract.db.session import DatabaseResources
 from docextract.schemas_evidence import EvidenceExtractionResponse
 from docextract.services.evidence.ocr import (
     OcrEngineUnavailableError,
@@ -63,6 +72,7 @@ async def extract_invoice_evidence(
     validation_started = time.perf_counter()
     filename = file.filename or "invoice"
     file_id = str(uuid4())
+    uploaded_at = datetime.now(UTC)
     request.state.file_id = file_id
     set_file_id(file_id)
     extension = PurePath(filename).suffix.lower()
@@ -98,14 +108,39 @@ async def extract_invoice_evidence(
         raise ApiError(415, "UNSUPPORTED_FORMAT", "The file type does not match its content.")
 
     validation_ms = round((time.perf_counter() - validation_started) * 1000, 2)
+    database: DatabaseResources | None = None
     try:
-        return await extract_evidence_document(
+        if settings.database_url:
+            database = await ensure_database_ready(
+                getattr(request.app.state, "database", None)
+            )
+        result = await extract_evidence_document(
             file_bytes,
             mime_type,
             filename,
             settings,
             validation_ms=validation_ms,
         )
+        if database is not None:
+            storage_root = settings.document_storage_dir
+            if not storage_root.is_absolute():
+                storage_root = BACKEND_ROOT / storage_root
+            usage = [
+                item.model_dump(mode="json") for item in result.meta.provider_usage
+            ]
+            await persist_extraction(
+                database,
+                storage_root=storage_root,
+                file_id=UUID(file_id),
+                trace_id=UUID(request.state.trace_id),
+                uploaded_at=uploaded_at,
+                processed_at=datetime.now(UTC),
+                content_type=mime_type,
+                file_bytes=file_bytes,
+                extracted_data=result.data.model_dump(mode="json"),
+                provider_attempts=evidence_attempt_usage(usage),
+            )
+        return result
     except DocumentDecodeError as error:
         message = str(error)
         if "page count" in message:
@@ -155,3 +190,37 @@ async def extract_invoice_evidence(
             (502, "PROVIDER_FAILURE", "Invoice extraction failed with configured AI providers."),
         )
         raise ApiError(status_code, code, message) from error
+    except DatabaseUnavailableError as error:
+        logger.warning(
+            "evidence persistence database unavailable",
+            extra={"event": "database_persistence_failed", "file_id": file_id},
+        )
+        raise ApiError(
+            503,
+            "DATABASE_UNAVAILABLE",
+            "Document persistence is temporarily unavailable.",
+        ) from error
+    except PersistenceFailureError as error:
+        logger.error(
+            "evidence persistence transaction failed",
+            extra={"event": "document_persistence_failed", "file_id": file_id},
+        )
+        raise ApiError(
+            503,
+            "PERSISTENCE_FAILURE",
+            "Document persistence is temporarily unavailable.",
+        ) from error
+    except OSError as error:
+        logger.error(
+            "evidence document persistence failed",
+            extra={
+                "event": "document_persistence_failed",
+                "file_id": file_id,
+                "error_type": type(error).__name__,
+            },
+        )
+        raise ApiError(
+            503,
+            "PERSISTENCE_FAILURE",
+            "Document persistence is temporarily unavailable.",
+        ) from error

@@ -5,21 +5,31 @@ import io
 import logging
 import struct
 import zlib
-from pathlib import PurePath
+from datetime import UTC, datetime
+from pathlib import Path, PurePath
 from typing import Annotated
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, File, Request, UploadFile
 from pypdf import PdfReader
+from sqlalchemy.exc import SQLAlchemyError
 
 from docextract.api.errors import ApiError
-from docextract.core.config import get_settings
+from docextract.core.config import BACKEND_ROOT, get_settings
 from docextract.core.request_context import set_file_id
+from docextract.db.service import (
+    DatabaseUnavailableError,
+    PersistenceFailureError,
+    ensure_database_ready,
+    extraction_attempt_usage,
+    persist_extraction,
+)
 from docextract.schemas import InvoiceExtractionData
 from docextract.services.extractor import (
     ExtractionNotConfiguredError,
     ExtractionProviderError,
     extract_document_data,
+    extract_document_with_usage,
 )
 
 router = APIRouter(tags=["invoices"])
@@ -188,12 +198,14 @@ async def extract_invoice(
     """Accept an invoice document and return AI-extracted structured data."""
     filename = file.filename or "invoice"
     file_id = str(uuid4())
+    uploaded_at = datetime.now(UTC)
     request.state.file_id = file_id
     set_file_id(file_id)
     extension = PurePath(filename).suffix.lower()
     declared_mime_type = (file.content_type or "").split(";", maxsplit=1)[0].strip().lower()
 
-    max_size = get_settings().max_upload_size_bytes
+    settings = get_settings()
+    max_size = settings.max_upload_size_bytes
     file_bytes = await file.read(max_size + 1)
     request.state.upload_size_bytes = len(file_bytes)
     logger.info(
@@ -225,6 +237,27 @@ async def extract_invoice(
     _check_document_resources(file_bytes, mime_type)
 
     try:
+        if settings.database_url:
+            resources = await ensure_database_ready(
+                getattr(request.app.state, "database", None)
+            )
+            result = await extract_document_with_usage(file_bytes, mime_type, filename)
+            storage_root = settings.document_storage_dir
+            if not storage_root.is_absolute():
+                storage_root = BACKEND_ROOT / storage_root
+            await persist_extraction(
+                resources,
+                storage_root=Path(storage_root),
+                file_id=UUID(file_id),
+                trace_id=UUID(request.state.trace_id),
+                uploaded_at=uploaded_at,
+                processed_at=datetime.now(UTC),
+                content_type=mime_type,
+                file_bytes=file_bytes,
+                extracted_data=result.data.model_dump(mode="json"),
+                provider_attempts=extraction_attempt_usage(result),
+            )
+            return result.data
         return await extract_document_data(file_bytes, mime_type, filename)
     except ExtractionNotConfiguredError as error:
         raise ApiError(
@@ -252,3 +285,37 @@ async def extract_invoice(
             (502, "PROVIDER_FAILURE", "Invoice extraction failed with configured AI providers."),
         )
         raise ApiError(status_code, code, message) from error
+    except DatabaseUnavailableError as error:
+        logger.warning(
+            "document persistence database unavailable",
+            extra={"event": "database_persistence_failed", "file_id": file_id},
+        )
+        raise ApiError(
+            503,
+            "DATABASE_UNAVAILABLE",
+            "Document persistence is temporarily unavailable.",
+        ) from error
+    except PersistenceFailureError as error:
+        logger.error(
+            "document persistence transaction failed",
+            extra={"event": "document_persistence_failed", "file_id": file_id},
+        )
+        raise ApiError(
+            503,
+            "PERSISTENCE_FAILURE",
+            "Document persistence is temporarily unavailable.",
+        ) from error
+    except (OSError, SQLAlchemyError) as error:
+        logger.error(
+            "document persistence failed",
+            extra={
+                "event": "document_persistence_failed",
+                "file_id": file_id,
+                "error_type": type(error).__name__,
+            },
+        )
+        raise ApiError(
+            503,
+            "PERSISTENCE_FAILURE",
+            "Document persistence is temporarily unavailable.",
+        ) from error

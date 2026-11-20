@@ -17,6 +17,8 @@ from docextract.core.logging_config import JsonLogFormatter
 from docextract.main import app
 from docextract.schemas import InvoiceExtractionData, InvoiceLineItem
 from docextract.services import extractor
+from docextract.services.extractor import ExtractionResult, ProviderAttempt
+from docextract.services.usage import CostEstimate, ProviderUsage
 
 _LIMIT = 1024
 
@@ -124,6 +126,79 @@ def test_valid_supported_file_reaches_extraction(
     assert response.status_code == 200
     assert response.json()["invoice_number"] == "INV-1"
     assert calls == [(content, content_type, filename)]
+
+
+def test_database_unavailable_returns_503_before_provider_call(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = _mock_extraction(monkeypatch)
+    monkeypatch.setattr(
+        extract_route,
+        "get_settings",
+        lambda: Settings(database_url="postgresql+asyncpg://unused", max_upload_size_bytes=_LIMIT),
+    )
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "DATABASE_UNAVAILABLE"
+    assert calls == []
+
+
+def test_database_enabled_extraction_persists_result_without_changing_response(
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+    result = ExtractionResult(
+        data=InvoiceExtractionData(invoice_number="INV-PERSIST"),
+        attempts=(
+            ProviderAttempt(
+                provider="OpenAI",
+                model="test-model",
+                duration_ms=10.0,
+                outcome="success",
+                usage=ProviderUsage(12, 3, 15),
+                cost=CostEstimate(None, "unconfigured"),
+            ),
+        ),
+    )
+
+    async def ready(database: object) -> object:
+        return object()
+
+    async def extract(*args: object, **kwargs: object) -> ExtractionResult:
+        return result
+
+    async def persist(database: object, **kwargs: object) -> None:
+        captured.update(kwargs)
+
+    monkeypatch.setattr(
+        extract_route,
+        "get_settings",
+        lambda: Settings(database_url="postgresql+asyncpg://unused", max_upload_size_bytes=_LIMIT),
+    )
+    monkeypatch.setattr(extract_route, "ensure_database_ready", ready)
+    monkeypatch.setattr(extract_route, "extract_document_with_usage", extract)
+    monkeypatch.setattr(extract_route, "persist_extraction", persist)
+
+    response = client.post(
+        "/api/extract",
+        files={"file": ("invoice.pdf", _pdf(), "application/pdf")},
+    )
+
+    assert response.status_code == 200
+    assert set(response.json()) == set(InvoiceExtractionData.model_fields)
+    assert response.json()["invoice_number"] == "INV-PERSIST"
+    assert captured["extracted_data"]["invoice_number"] == "INV-PERSIST"  # type: ignore[index]
+    assert captured["provider_attempts"][0]["input_tokens"] == 12  # type: ignore[index]
+    assert captured["provider_attempts"][0]["output_tokens"] == 3  # type: ignore[index]
+    assert captured["file_id"] == UUID(response.headers["X-File-ID"])
+    assert captured["trace_id"] == UUID(response.headers["X-Trace-ID"])
 
 
 def test_extraction_response_serializes_nullable_schema_fields(

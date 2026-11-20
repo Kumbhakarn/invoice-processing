@@ -1,6 +1,7 @@
 .env
 backend/app.log
 backend/app.log.*
+backend/data/
 .venv/
 __pycache__/
 *.py[cod]
