@@ -32,7 +32,7 @@ def test_mapper_preserves_values_and_maps_evidence_for_top_level_fields() -> Non
             FieldEvidence(
                 field="invoice_number",
                 raw="INV-1001",
-                confidence=0.93,
+                confidence="High",
                 source=source,
             )
         ],
@@ -41,12 +41,12 @@ def test_mapper_preserves_values_and_maps_evidence_for_top_level_fields() -> Non
     assert result["invoice_number"].model_dump() == {
         "value": "INV-1001",
         "raw": "INV-1001",
-        "confidence": 0.93,
+        "confidence": "High",
         "source": source.model_dump(),
         "edited": False,
     }
     assert result["invoice_date"].value == "2025-01-15"
-    assert result["invoice_date"].confidence == 0
+    assert result["invoice_date"].confidence is None
     assert result["invoice_date"].source.reason == "not_found"
     assert result["buyer_name"].value is None
     assert len(result) == len(InvoiceExtractionData.model_fields) - 1
@@ -148,3 +148,16 @@ def test_ambiguous_source_keeps_candidates_without_selecting_a_page() -> None:
     assert source.page is None
     assert len(source.candidates) == 2
     assert source.reason == "ambiguous"
+
+
+def test_confidence_accepts_model_labels_or_unavailable_only() -> None:
+    invoice = InvoiceExtractionData(invoice_number="INV-1")
+    mapped = map_extraction_fields(
+        invoice,
+        [FieldEvidence(field="invoice_number", confidence="Medium")],
+    )
+
+    assert mapped["invoice_number"].confidence == "Medium"
+    assert mapped["invoice_date"].confidence is None
+    with pytest.raises(ValidationError):
+        FieldEvidence(field="invoice_number", confidence="0.95")

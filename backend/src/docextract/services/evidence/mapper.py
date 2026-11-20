@@ -40,7 +40,7 @@ def map_extraction_fields(
         mapped[field_name] = MappedField(
             value=value,
             raw=field_evidence.raw if field_evidence else None,
-            confidence=field_evidence.confidence if field_evidence else 0.0,
+            confidence=field_evidence.confidence if field_evidence else None,
             source=field_evidence.source if field_evidence else FieldSource(),
             edited=field_evidence.edited if field_evidence else False,
         )

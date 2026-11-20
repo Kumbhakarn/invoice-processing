@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 from docextract.core.config import Settings
 from docextract.schemas import InvoiceExtractionData
+from docextract.schemas_evidence import EvidenceProviderResponse, FieldConfidenceAssessment
 from docextract.services import extractor
 from docextract.services.usage import ProviderUsage, calculate_cost, reported_usage
 
@@ -222,6 +223,36 @@ def test_openai_adapter_uses_structured_sdk_response_and_timeout(
     assert result.usage == ProviderUsage(11, 5, 16)
     assert received["client"] == {"api_key": "key", "timeout": 60.0}
     assert received["parse"]["text_format"] is InvoiceExtractionData  # type: ignore[index]
+
+
+def test_openai_evidence_adapter_requests_qualitative_confidence_without_logprobs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    received: dict[str, object] = {}
+    parsed = EvidenceProviderResponse(
+        data=InvoiceExtractionData(invoice_number="INV-1"),
+        raw_fields=[],
+        field_confidences=[FieldConfidenceAssessment(field="invoice_number", confidence="High")],
+    )
+
+    class Responses:
+        def parse(self, **kwargs: object) -> object:
+            received["parse"] = kwargs
+            return SimpleNamespace(output_parsed=parsed, usage=None)
+
+    class Client:
+        def __init__(self, **kwargs: object) -> None:
+            self.responses = Responses()
+
+    monkeypatch.setattr(extractor, "OpenAI", Client)
+    result = extractor._extract_evidence_with_openai(
+        b"pdf", "application/pdf", "invoice.pdf", Settings(openai_api_key="key")
+    )
+
+    assert result.field_confidences == tuple(parsed.field_confidences)
+    parse_kwargs = received["parse"]
+    assert parse_kwargs["text_format"] is EvidenceProviderResponse  # type: ignore[index]
+    assert "include" not in parse_kwargs  # type: ignore[operator]
 
 
 @pytest.mark.parametrize("response_text", [None, "not json", '{"invoice_number": 123}'])

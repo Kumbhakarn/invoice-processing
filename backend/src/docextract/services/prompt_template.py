@@ -54,6 +54,12 @@ def build_evidence_user_prompt() -> str:
         '{"field": "field.path", "raw": "exact printed text"}. Include an entry only '
         "when the printed form differs from the normalized field value. Use zero-based "
         "paths such as line_items[0].quantity. Do not return page numbers, bounding boxes, "
-        "confidence values, or any other evidence metadata. Copy raw text exactly as printed. "
+        "or numeric confidence values. Also return field_confidences as one object for each "
+        "scalar field path in the extraction, including null-valued fields, with the shape "
+        '{"field": "field.path", "confidence": "High"}. Use only "High", "Medium", '
+        '"Low", or null when you cannot assess the field. This is your own qualitative '
+        "assessment of the extracted value from the document, not a probability or guarantee. "
+        "Do not change or omit extracted values when assessing confidence. Copy raw text "
+        "exactly as printed. "
         "The document is the only source of truth."
     )

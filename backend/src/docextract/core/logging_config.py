@@ -44,7 +44,10 @@ _EXTRA_FIELDS = (
     "located_count",
     "ambiguous_count",
     "unavailable_count",
-    "average_confidence",
+    "confidence_high_count",
+    "confidence_medium_count",
+    "confidence_low_count",
+    "confidence_unavailable_count",
 )
 
 

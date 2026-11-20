@@ -2,9 +2,7 @@
 
 import asyncio
 import base64
-import json
 import logging
-import math
 import time
 import traceback
 from collections.abc import Callable
@@ -19,7 +17,11 @@ from openai.types.responses.response_input_param import ResponseInputParam
 from docextract.core.config import Settings, get_settings
 from docextract.core.request_context import get_request_id
 from docextract.schemas import InvoiceExtractionData
-from docextract.schemas_evidence import EvidenceProviderResponse, RawFieldText
+from docextract.schemas_evidence import (
+    EvidenceProviderResponse,
+    FieldConfidenceAssessment,
+    RawFieldText,
+)
 from docextract.services.prompt_template import (
     SYSTEM_PROMPT,
     build_evidence_user_prompt,
@@ -47,7 +49,7 @@ class ProviderCallResult:
     data: InvoiceExtractionData
     usage: ProviderUsage
     raw_fields: tuple[RawFieldText, ...] = ()
-    field_logprobs: tuple[tuple[str, float], ...] = ()
+    field_confidences: tuple[FieldConfidenceAssessment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -67,7 +69,7 @@ class ExtractionResult:
     data: InvoiceExtractionData
     attempts: tuple[ProviderAttempt, ...]
     raw_fields: tuple[RawFieldText, ...] = ()
-    field_logprobs: tuple[tuple[str, float], ...] = ()
+    field_confidences: tuple[FieldConfidenceAssessment, ...] = ()
 
 
 def _provider_error_category(error: Exception) -> str:
@@ -175,7 +177,7 @@ def _extract_evidence_with_openai(
     filename: str,
     settings: Settings,
 ) -> ProviderCallResult:
-    """Return values and proposed raw text, with optional field-aligned token scores."""
+    """Return values, proposed raw text, and model self-assessed confidence levels."""
     if settings.openai_api_key is None:
         raise ExtractionNotConfiguredError("OPENAI_API_KEY is not configured")
     data_url = f"data:{mime_type};base64,{base64.b64encode(file_bytes).decode('ascii')}"
@@ -204,7 +206,6 @@ def _extract_evidence_with_openai(
         model=settings.openai_model,
         input=response_input,
         text_format=EvidenceProviderResponse,
-        include=["message.output_text.logprobs"],
     )
     parsed = response.output_parsed
     if parsed is None:
@@ -213,7 +214,7 @@ def _extract_evidence_with_openai(
         data=parsed.data,
         usage=reported_usage(response, "OpenAI"),
         raw_fields=tuple(parsed.raw_fields),
-        field_logprobs=tuple(_field_logprobs(response, parsed.data).items()),
+        field_confidences=tuple(parsed.field_confidences),
     )
 
 
@@ -250,58 +251,8 @@ def _extract_evidence_with_gemini(
         data=parsed.data,
         usage=reported_usage(response, "Gemini"),
         raw_fields=tuple(parsed.raw_fields),
+        field_confidences=tuple(parsed.field_confidences),
     )
-
-
-def _field_logprobs(response: object, data: InvoiceExtractionData) -> dict[str, float]:
-    """Average output-token probabilities only where tokens align to a field value."""
-    output_text = getattr(response, "output_text", None)
-    if not isinstance(output_text, str) or not output_text:
-        return {}
-    token_records: list[tuple[str, float]] = []
-    output = getattr(response, "output", ())
-    for message in output:
-        for content in getattr(message, "content", ()):
-            for item in getattr(content, "logprobs", ()) or ():
-                token = getattr(item, "token", None)
-                logprob = getattr(item, "logprob", None)
-                if isinstance(token, str) and isinstance(logprob, (int, float)):
-                    token_records.append((token, float(logprob)))
-    if not token_records or "".join(token for token, _ in token_records) != output_text:
-        return {}
-
-    positions: list[tuple[int, int, float]] = []
-    offset = 0
-    for token, logprob in token_records:
-        positions.append((offset, offset + len(token), logprob))
-        offset += len(token)
-    values = _flatten_values(data)
-    scores: dict[str, float] = {}
-    for field_name, value in values.items():
-        if value is None:
-            continue
-        serialized = json.dumps(value, ensure_ascii=False)
-        start = output_text.find(serialized)
-        if start < 0:
-            continue
-        end = start + len(serialized)
-        selected = [logprob for left, right, logprob in positions if left < end and right > start]
-        if selected:
-            scores[field_name] = sum(math.exp(item) for item in selected) / len(selected)
-    return scores
-
-
-def _flatten_values(data: InvoiceExtractionData) -> dict[str, object]:
-    values: dict[str, object] = {}
-    for field_name in InvoiceExtractionData.model_fields:
-        value = getattr(data, field_name)
-        if field_name == "line_items":
-            for index, item in enumerate(value or []):
-                for item_field in item.__class__.model_fields:
-                    values[f"line_items[{index}].{item_field}"] = getattr(item, item_field)
-        else:
-            values[field_name] = value
-    return values
 
 
 async def extract_document_with_usage(
@@ -403,7 +354,7 @@ async def extract_document_with_usage(
                 result.data,
                 tuple(attempts),
                 result.raw_fields,
-                result.field_logprobs,
+                result.field_confidences,
             )
         except Exception as error:
             category = _provider_error_category(error)

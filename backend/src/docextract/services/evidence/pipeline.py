@@ -15,7 +15,6 @@ from docextract.schemas_evidence import (
     EvidenceMetadata,
     ProviderUsageMetadata,
 )
-from docextract.services.evidence.confidence import score_field_confidence
 from docextract.services.evidence.mapper import map_extraction_fields
 from docextract.services.evidence.matcher import ground_raw_fields, match_invoice_fields
 from docextract.services.evidence.ocr import (
@@ -114,25 +113,25 @@ async def extract_evidence_document(
         settings,
         ocr_failed=ocr_failed,
     )
+    confidence_by_field: dict[str, str | None] = {}
+    for assessment in extraction.field_confidences:
+        confidence_by_field.setdefault(assessment.field, assessment.confidence)
     field_evidence = [
-        item.model_copy(update={"raw": grounded_raw.get(item.field)}) for item in field_evidence
+        field_item.model_copy(
+            update={
+                "raw": grounded_raw.get(field_item.field),
+                "confidence": confidence_by_field.get(field_item.field),
+            }
+        )
+        for field_item in field_evidence
     ]
-    field_evidence = score_field_confidence(
-        extraction.data,
-        field_evidence,
-        text_boxes,
-        dict(extraction.field_logprobs),
-        settings,
-    )
     matching_ms = _elapsed_ms(matching_started)
     status_counts = {"located": 0, "ambiguous": 0, "unavailable": 0}
-    for item in field_evidence:
-        status_counts[item.source.status] += 1
-    average_confidence = (
-        round(sum(item.confidence for item in field_evidence) / len(field_evidence), 4)
-        if field_evidence
-        else 0.0
-    )
+    for field_item in field_evidence:
+        status_counts[field_item.source.status] += 1
+    confidence_counts = {"High": 0, "Medium": 0, "Low": 0, "unavailable": 0}
+    for field_item in field_evidence:
+        confidence_counts[field_item.confidence or "unavailable"] += 1
     logger.info(
         "evidence matching completed",
         extra={
@@ -141,7 +140,10 @@ async def extract_evidence_document(
             "located_count": status_counts["located"],
             "ambiguous_count": status_counts["ambiguous"],
             "unavailable_count": status_counts["unavailable"],
-            "average_confidence": average_confidence,
+            "confidence_high_count": confidence_counts["High"],
+            "confidence_medium_count": confidence_counts["Medium"],
+            "confidence_low_count": confidence_counts["Low"],
+            "confidence_unavailable_count": confidence_counts["unavailable"],
             "duration_ms": matching_ms,
         },
     )
