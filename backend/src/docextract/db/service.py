@@ -31,7 +31,7 @@ async def ensure_database_ready(database: DatabaseResources | None) -> DatabaseR
         raise DatabaseUnavailableError("Database resources are not initialized")
     try:
         await check_database_connection(database.engine)
-    except SQLAlchemyError as error:
+    except (OSError, SQLAlchemyError) as error:
         raise DatabaseUnavailableError("Database connection failed") from error
     return database
 

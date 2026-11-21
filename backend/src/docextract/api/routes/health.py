@@ -49,7 +49,7 @@ async def readiness_check(request: Request, response: Response) -> ReadinessResp
         return ReadinessResponse(status="not_ready", database="unavailable")
     try:
         await check_database_connection(database.engine)
-    except SQLAlchemyError:
+    except (OSError, SQLAlchemyError):
         logger.warning("database readiness check failed", extra={"event": "database_unavailable"})
         response.status_code = 503
         return ReadinessResponse(status="not_ready", database="unavailable")
