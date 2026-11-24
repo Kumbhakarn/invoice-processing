@@ -18,7 +18,7 @@
 [🛠 Troubleshooting](#-troubleshooting) ·
 [🗺 Roadmap](#-roadmap)
 
-<img src="docs/images/docextract-review-workspace.png" alt="DocExtract invoice review workspace" width="1200">
+<img src="docs/images/new_image.png" alt="DocExtract invoice review workspace" width="1200">
 
 </div>
 
